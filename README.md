@@ -15,4 +15,4 @@ git commit -m "<YOUR_COMMIT_MESSAGE_HERE>"
 git push origin <YOUR_NAME_HERE>
 ```
 
-To make a pull request, go to pull requests in github, and select "Create Pull Request". This will be verified/denied by David and Emily. 
+To make a pull request after running the above code, go to pull requests in github, and select "Create Pull Request". This will be verified/denied by David and Emily. 
