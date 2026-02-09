@@ -15,9 +15,4 @@ git commit -m "<YOUR_COMMIT_MESSAGE_HERE>"
 git push origin <YOUR_NAME_HERE>
 ```
 
-To get new files from the main branch: 
-```bash
-git add .
-git commit -m "<YOUR_COMMIT_MESSAGE_HERE>"
-git push origin <YOUR_NAME_HERE>
-```
+To make a pull request, go to pull requests in github, and select "Create Pull Request". This will be verified/denied by David and Emily. 
