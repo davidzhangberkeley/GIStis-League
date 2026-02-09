@@ -1,6 +1,9 @@
 # GIStis-League
 Open Project, Spring 2026
 
+IMPORTANT: 
+Do NOT make any direct pushes to main. Only make pushes to your own branch. 
+
 To set up your repository & branch (ONLY DO THIS ONCE): 
 ```bash
 git clone https://github.com/davidzhangberkeley/GIStis-League.git
