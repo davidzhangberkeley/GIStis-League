@@ -35,5 +35,5 @@ To set up the Conda environment on VSCode (ONLY DO THIS ONCE):
 2. press CMD + Shift + P
 3. navigate to "Select Python Interpreter" and select Python /opt/anaconda3/envs/gistice_league/python
 
-HOMEWORK 1 ATTENDANCE:
-1. David
+HOMEWORK 1 ATTENDANCE (add your name here and make the pull request):
+David
