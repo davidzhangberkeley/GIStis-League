@@ -29,3 +29,8 @@ To set up your repository intially (ONLY DO THIS ONCE):
 ```bash
 git clone https://github.com/davidzhangberkeley/GIStis-League.git
 ```
+
+To set up the Conda environment on VSCode (ONLY DO THIS ONCE):
+1. go to the project directory on VSCode
+2. press CMD + Shift + P
+3. navigate to "Select Python Interpreter" and select Python /opt/anaconda3/envs/gistice_leage/python
