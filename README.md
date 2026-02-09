@@ -15,4 +15,10 @@ git commit -m "<YOUR_COMMIT_MESSAGE_HERE>"
 git push origin <YOUR_NAME_HERE>
 ```
 
-To make a pull request after running the above code, go to pull requests in github, and select "Create Pull Request". This will be verified/denied by David and Emily. 
+To create a pull request into main after running the above code:
+1. go to pull requests in github
+3. select "New Pull Request"
+4. select the main branch and your branch (the branch with <YOUR_NAME_HERE>)
+5. create the new pull request
+6. let David and Emily know 
+7. the PR (pull request) will be verified/denied by David and Emily. 
