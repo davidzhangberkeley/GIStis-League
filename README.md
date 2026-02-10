@@ -37,3 +37,4 @@ To set up the Conda environment on VSCode (ONLY DO THIS ONCE):
 
 HOMEWORK 1 ATTENDANCE (add your name here and make the pull request):
 David
+Joshua
