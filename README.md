@@ -18,12 +18,13 @@ git add .
 git commit -m "<YOUR_COMMIT_MESSAGE_HERE"
 git push origin <YOUR_BRANCH_NAME>
 ```
-4. Go to pull requests in github
-5. Select "New Pull Request"
-6. Select the main branch and your branch (the branch with <YOUR_NAME_HERE>)
-7. Create the new pull request
-8. Let David and Emily know
-9. The PR (pull request) will be verified/denied by David and Emily. 
+4. If you're running issues with your username/password in #3, make a token by going to Github (click on your profile avatar) > Settings > Developer settings > Personal access tokens > Tokens (classic). Then, click on "Generate new token", select "Generate new token (classic), name your token whatever you want, select 90 days expiration, select the "repo" checkbox, and click generate token. After you have generated the token, use your token ID as the password instead of your normal password inside terminal (your username stays the same). 
+5. Go to pull requests in github
+6. Select "New Pull Request"
+7. Select the main branch and your branch (the branch with <YOUR_NAME_HERE>)
+8. Create the new pull request
+9. Let David and Emily know
+10. The PR (pull request) will be verified/denied by David and Emily. 
 
 To set up your repository intially (ONLY DO THIS ONCE): 
 ```bash
