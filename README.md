@@ -31,7 +31,7 @@ git clone https://github.com/davidzhangberkeley/GIStis-League.git
 ```
 
 To set up the anaConda environment on VSCode (ONLY DO THIS ONCE):
-1. install anaconda through https://docs.conda.io/projects/conda/en/stable/user-guide/install/macos.html
+1. install anaconda through https://www.anaconda.com/docs/getting-started/anaconda/install#macos-linux-installation
 2. go to the project directory on VSCode
 3. press CMD + Shift + P
 4. navigate to "Select Python Interpreter" and select Python /opt/anaconda3/envs/gistice_league/python
