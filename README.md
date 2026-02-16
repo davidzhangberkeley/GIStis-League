@@ -41,3 +41,4 @@ To set up the anaConda environment on VSCode (ONLY DO THIS ONCE):
 
 HOMEWORK 1 ATTENDANCE (add your name here and make the pull request):
 David Eva
+Ojasvi Shrivastava
