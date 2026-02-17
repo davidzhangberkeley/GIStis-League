@@ -40,4 +40,4 @@ To set up the anaConda environment on VSCode (ONLY DO THIS ONCE):
 6. navigate to "Select Python Interpreter" and select Python 3.11.14 (gistis)
 
 HOMEWORK 1 ATTENDANCE (add your name here and make the pull request):
-David Eva
+David Eva Enguun
