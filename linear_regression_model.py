@@ -31,7 +31,7 @@ def main():
     preds = model.predict(X_test)
 
     # evaluate predictions
-    mse = mean_squared_error(y_test, preds) #mean/average squared error
+    mse = mean_squared_error(y_test, preds) #mean/average squared error.
     r2 = r2_score(y_test, preds)#how much better than just guessing the mean
 
     print("Linear Regression Demo (diabetes dataset)")
