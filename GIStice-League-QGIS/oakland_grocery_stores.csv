@@ -1,0 +1,26 @@
+X,Y,full_id,osm_id,osm_type,shop,check_date,amenity,alt_name,entrance,wheelchair,level,addr:housename,website,ref,phone,opening_hours,name,check_date:opening_hours,brand:wikidata,brand,branch,addr:street,addr:state,addr:postcode,addr:housenumber,addr:city
+-122.252612,37.8455422,n212435197,"212435197",node,supermarket,,,,,,,,https://locations.traderjoes.com/ca/oakland/231/,"231",+1 510-923-9428,Mo-Su 08:00-21:00,Trader Joe's,2025-07-21,Q688825,Trader Joe's,Oakland - Rockridge,College Avenue,CA,"94618","5727",Oakland
+-122.2443754,37.8099099,n363915431,"363915431",node,supermarket,,,,,,,,https://locations.traderjoes.com/ca/oakland/203/,"203",+1 510-238-9076,Mo-Su 08:00-21:00,Trader Joe's,,Q688825,Trader Joe's,Oakland - Lakeshore,Lakeshore Avenue,CA,"94610","3250",Oakland
+-122.283254,37.8423296,n1305397495,"1305397495",node,supermarket,,,,,,,,,,,,Gateway Grocery,,,,,,,,,
+-122.2439078,37.8109894,n1378041461,"1378041461",node,supermarket,,,,,,,,https://lakeshorenatural.com/,,+1-510-452-1079,"Mo-Sa 10:00-18:00; Su 12:00-17:00",Lakeshore Natural Foods,,,,,,,,,
+-122.1971997,37.811192,n1707556416,"1707556416",node,supermarket,,,,,,,,,,,,Woodminster Market,,,,,Woodminster Lane,,,"5000",
+-122.2664057,37.7991623,n2412716300,"2412716300",node,supermarket,,,,,,,hk outlets,,,,,hk outlets,,,,,10th Street,,"94607","178",
+-122.267846,37.7994307,n2416941915,"2416941915",node,supermarket,,,,,,,,,,,,Hometown Grocery,,,,,10th Street,,,"241",
+-122.2700186,37.8002901,n2416945139,"2416945139",node,supermarket,,,,,,,,,,,,LG Supermarket,,,,,10th Street,,,"325",
+-122.25203,37.8506081,n2487652502,"2487652502",node,supermarket,,,,,yes,"0",,https://local.safeway.com/safeway/ca/oakland/6310-college-ave.html,,+1 510-985-0012,Mo-Su 05:00-00:00,Safeway,,Q1508234,Safeway,,College Avenue,CA,"94618","6310",Oakland
+-122.2162132,37.7994855,n2836883670,"2836883670",node,,,,,main,,,,,,,,,,,,,,,,,
+-122.2534898,37.8254386,n2838479530,"2838479530",node,supermarket,,,,,,,,,,,Mo-Su 08:30-19:30,Monte Vista Food Center,,,,,Piedmont Avenue,,"94611","4000",Oakland
+-122.2672304,37.7937589,n3565153877,"3565153877",node,supermarket,,,,,,,,,,,,Cash & Carry,,,,,Oak Street,CA,"94607","400",Oakland
+-122.1774582,37.7677359,n3799894173,"3799894173",node,supermarket,,,,,,,,,,,,Gazzail's Supermarket,,,,,,,,,
+-122.1635413,37.7370516,n3934277166,"3934277166",node,supermarket,,,,,,,,,,,,FoodMaxx,,Q61894844,FoodMaxx,,,,,,
+-122.271586,37.8000479,n3992953178,"3992953178",node,supermarket,,,Tan Duc Supermarket,,,,,,,,,New Dic's Supermarket,,,,,,,,,
+-122.2685094,37.7977739,n3992986699,"3992986699",node,supermarket,,,,,,,,,,,,Won Kee Supermarket,,,,,,,,,
+-122.2292107,37.7795816,n4134761495,"4134761495",node,supermarket,,,,,,,,,,,,Supermercado Mi Pueblo,,,,,,,,,
+-122.2250463,37.7788521,n4220797224,"4220797224",node,supermarket,,,,,,,,,,,,El Charro Supermarket,,,,,,,,,
+-122.248783,37.8347336,n4611235501,"4611235501",node,supermarket,,,,,yes,,,https://local.safeway.com/safeway/ca/oakland/5100-broadway.html,,+1 510-285-0782,Mo-Su 05:00-02:00,Safeway,,Q1508234,Safeway,,Broadway,CA,"94611","5100",Oakland
+-122.2606889,37.8135583,n6597795938,"6597795938",node,,,loading_dock,,,,,,,,,,,,,,,,,,,
+-122.2619451,37.819672,n8895540892,"8895540892",node,,,parking_entrance,,,,,,,,,,,,,,,,,,,
+-122.262767,37.818781,n8895540902,"8895540902",node,,,parking_entrance,,,,,,,,,,,,,,,,,,,
+-122.262025,37.8374006,n9344941253,"9344941253",node,supermarket,2026-01-19,,,,yes,,,https://www.wholefoodsmarket.com/stores/temescal,temescal,+1 510-903-2222,Mo-Su 08:00-21:00,Whole Foods Market,2026-01-19,Q1809448,Whole Foods Market,Temescal,Telegraph Avenue,CA,"94609","5101;5179;5199",Oakland
+-122.2611225,37.8174235,n11929745224,"11929745224",node,,,loading_dock,,,,,,,,,,,,,,,,,,,
+-122.1831188,37.7368162,n12398819474,"12398819474",node,supermarket,,,,,,,,,,,,Latinos Unidos,,,,,,,,,
