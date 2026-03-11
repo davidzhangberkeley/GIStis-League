@@ -2,12 +2,50 @@ mapboxgl.accessToken = ALEX_MAPBOX_TOKEN;
 
 const map = new mapboxgl.Map({
   container: "map",
-  style: "mapbox://styles/mapbox/outdoors-v12",
+  style: "mapbox://styles/alo-97/cmm1jk21x004h01smffit3mja",
   center: [-122.2711, 37.8044], // Centered roughly between SF, Oakland, Berkeley
   zoom: 11
 });
 
 let hoveredId = null;
+
+let activePopups = [];
+const initialView = {
+  center: [-122.2711, 37.8044],
+  zoom: 11
+};
+
+function closeAllPopups() {
+  activePopups.forEach((popup) => popup.remove());
+  activePopups = [];
+}
+
+const cityViews = {
+  "sf-layer": {
+    center: [-122.4194, 37.7749],
+    zoom: 12.4
+  },
+  "oakland-layer": {
+    center: [-122.2711, 37.8044],
+    zoom: 12.6
+  },
+  "berkeley-layer": {
+    center: [-122.2730, 37.8715],
+    zoom: 13.2
+  }
+};
+
+function zoomToLayerCity(layerId) {
+  const view = cityViews[layerId];
+  if (!view) return;
+
+  map.flyTo({
+    center: view.center,
+    zoom: view.zoom,
+    duration: 1400,
+    essential: true
+  });
+}
 
 function addHover(sourceId, layerId) {
   map.addLayer({
@@ -174,12 +212,15 @@ map.on("load", () => {
     const feature = e.features && e.features[0];
     if (!feature) return;
 
-    new mapboxgl.Popup({ closeButton: true, closeOnClick: true })
+    closeAllPopups();
+
+    const popup = new mapboxgl.Popup({ closeButton: true, closeOnClick: true })
       .setLngLat(e.lngLat)
       .setHTML(areaPopupHTML(feature.properties || {}))
       .addTo(map);
-  });
 
+    activePopups.push(popup);
+  });
 
   // --------------------
   // Berkeley
@@ -285,22 +326,28 @@ map.on("load", () => {
 
   // Enable click + hover behavior for all three layers
   ["berkeley-layer", "oakland-layer", "sf-layer"].forEach((layerId) => {
+    console.log("clicked layer:", layerId);
     map.on("click", layerId, (e) => {
       const feature = e.features && e.features[0];
       if (!feature) return;
 
-      const coords = feature.geometry.coordinates.slice(); // [lon, lat]
+      const coords = feature.geometry.coordinates.slice();
       const props = feature.properties || {};
 
-      // Fix wraparound (if map is zoomed out and world repeats)
       while (Math.abs(e.lngLat.lng - coords[0]) > 180) {
-        coords[0] += e.lngLat.lng > coords[0] ? 360 : -360;
+          coords[0] += e.lngLat.lng > coords[0] ? 360 : -360;
       }
 
-      new mapboxgl.Popup({ closeButton: true, closeOnClick: true })
+      zoomToLayerCity(layerId);
+
+      closeAllPopups();
+
+      const popup = new mapboxgl.Popup({ closeButton: true, closeOnClick: true})
         .setLngLat(coords)
         .setHTML(popupHTML(props))
-        .addTo(map);
+        .addTo(map)
+      
+      activePopups.push(popup)
     });
 
     map.on("mouseenter", layerId, () => {
@@ -312,4 +359,35 @@ map.on("load", () => {
     });
   });
 
+  const button = document.getElementById("tractToggle");
+
+  button.addEventListener("click", () => {
+    const visibility = map.getLayoutProperty("bay-ai-fill", "visibility");
+
+    if (visibility === "none") {
+      map.setLayoutProperty("bay-ai-fill", "visibility", "visible");
+      map.setLayoutProperty("bay-ai-outline", "visibility", "visible");
+      map.setLayoutProperty("bay-ai-hover", "visibility", "visible");
+      button.textContent = "Accessiblity Tracts On";
+    } else {
+      map.setLayoutProperty("bay-ai-fill", "visibility", "none");
+      map.setLayoutProperty("bay-ai-outline", "visibility", "none");
+      map.setLayoutProperty("bay-ai-hover", "visibility", "none");
+      button.textContent = "Accessiblity Tracts Off";
+    }
+  });
+
+  const resetButton = document.getElementById("resetView");
+
+  resetButton.addEventListener("click", () => {
+
+    closeAllPopups();
+    
+    map.flyTo({
+      center: initialView.center,
+      zoom: initialView.zoom,
+      duration: 1400,
+      essential: true
+    });
+  });
 });
