@@ -55,27 +55,31 @@ map.on("load", () => {
     source: "bay-ai",
     paint: {
       "fill-color": [
-        "interpolate",
-        ["linear"],
-        [
-          "to-number",
-          [
-            "coalesce",
-            ["get", " Accessibility_Index"], // exact field name from your file
-            ["get", "Accessibility_Index"],
-            ["get", "AI"],
-            ["get", "ai"],
-            0
-          ]
-        ],
-        0, "#ef4444",
-        25000, "#f97316",
-        50000, "#f59e0b",
-        100000, "#fde68a",
-        150000, "#86efac",
-        200000, "#16a34a"
-      ],
-      "fill-opacity": 0.6
+      "interpolate",
+      ["linear"],
+      ["to-number", ["get", " Accessibility_Index"]],
+
+      0, "#7f0000",
+      20000, "#d7301f",
+      40000, "#fc8d59",
+      60000, "#fdbb84",
+      80000, "#fee8c8",
+      100000, "#d9f0a3",
+      140000, "#78c679",
+      180000, "#31a354",
+      220000, "#006837"
+    ],
+    "fill-opacity": [
+      "case",
+    [
+      "any",
+      ["==", ["to-string", ["get", " Accessibility_Index"]], "NaN"],
+      ["==", ["to-string", ["get", " Accessibility_Index"]], ""],
+      ["==", ["get", " Accessibility_Index"], null]
+    ],
+      0,
+      0.6
+]
     }
   });
 
