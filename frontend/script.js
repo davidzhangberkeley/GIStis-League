@@ -40,6 +40,142 @@ function addHover(sourceId, layerId) {
 }
 
 map.on("load", () => {
+  // ---------------------------------
+  // ACCESSIBLITY INDEX TRACTS
+  // ----------------------------------
+  map.addSource("bay-ai", {
+    type: "geojson",
+    data: "data/bay_AI_geo.geojson",
+    generateId: true
+  });
+
+  map.addLayer({
+    id: "bay-ai-fill",
+    type: "fill",
+    source: "bay-ai",
+    paint: {
+      "fill-color": [
+        "interpolate",
+        ["linear"],
+        [
+          "to-number",
+          [
+            "coalesce",
+            ["get", " Accessibility_Index"], // exact field name from your file
+            ["get", "Accessibility_Index"],
+            ["get", "AI"],
+            ["get", "ai"],
+            0
+          ]
+        ],
+        0, "#ef4444",
+        25000, "#f97316",
+        50000, "#f59e0b",
+        100000, "#fde68a",
+        150000, "#86efac",
+        200000, "#16a34a"
+      ],
+      "fill-opacity": 0.68
+    }
+  });
+
+  map.addLayer({
+    id: "bay-ai-outline",
+    type: "line",
+    source: "bay-ai",
+    paint: {
+      "line-color": "#111111",
+      "line-width": 1.1,
+      "line-opacity": 0.7
+    }
+  });
+
+  map.addLayer({
+    id: "bay-ai-hover",
+    type: "line",
+    source: "bay-ai",
+    paint: {
+      "line-color": "#000000",
+      "line-width": 2.4
+    },
+    filter: ["==", ["id"], -1]
+  });
+
+  let hoveredAreaId = null;
+
+  map.on("mousemove", "bay-ai-fill", (e) => {
+    map.getCanvas().style.cursor = "pointer";
+    if (!e.features || !e.features.length) return;
+
+    const feature = e.features[0];
+    const id = feature.id;
+    if (id === undefined) return;
+
+    hoveredAreaId = id;
+    map.setFilter("bay-ai-hover", ["==", ["id"], hoveredAreaId]);
+  });
+
+  map.on("mouseleave", "bay-ai-fill", () => {
+    map.getCanvas().style.cursor = "";
+    hoveredAreaId = null;
+    map.setFilter("bay-ai-hover", ["==", ["id"], -1]);
+  });
+
+  function areaPopupHTML(props) {
+  const ai =
+    props[" Accessibility_Index"] ??
+    props.Accessibility_Index ??
+    props.AI ??
+    props.ai ??
+    "N/A";
+
+  const tract =
+    props.NAMELSAD ??
+    props.GEOID ??
+    "Unknown area";
+
+  const city =
+    props.CDTFA_CITY ??
+    props.CENSUS_PLA ??
+    "";
+
+  const county =
+    props.CDTFA_COUN ??
+    props.COUNTYFP ??
+    "";
+
+  const popDensity =
+    props.acs_2024_tracts_berkeley_oakland_sf_density_pop_density ?? "";
+
+  const medianIncome =
+    props.acs_2024_tracts_berkeley_oakland_sf_density_median_income ??
+    props.median_hh_ ??
+    "";
+
+  return `
+    <div style="font-family: sans-serif; line-height: 1.35;">
+      <div style="font-size: 14px; font-weight: 700; margin-bottom: 6px;">
+        ${tract}
+      </div>
+      ${city ? `<div style="font-size: 12px; margin-bottom: 4px;"><b>City:</b> ${city}</div>` : ""}
+      ${county ? `<div style="font-size: 12px; margin-bottom: 4px;"><b>County:</b> ${county}</div>` : ""}
+      <div style="font-size: 12px; margin-bottom: 4px;"><b>Accessibility Index:</b> ${Number(ai).toLocaleString()}</div>
+      ${popDensity ? `<div style="font-size: 12px; margin-bottom: 4px;"><b>Population Density:</b> ${Number(popDensity).toLocaleString()}</div>` : ""}
+      ${medianIncome ? `<div style="font-size: 12px;"><b>Median Income:</b> $${Number(medianIncome).toLocaleString()}</div>` : ""}
+    </div>
+  `;
+  }
+
+  map.on("click", "bay-ai-fill", (e) => {
+    const feature = e.features && e.features[0];
+    if (!feature) return;
+
+    new mapboxgl.Popup({ closeButton: true, closeOnClick: true })
+      .setLngLat(e.lngLat)
+      .setHTML(areaPopupHTML(feature.properties || {}))
+      .addTo(map);
+  });
+
 
   // --------------------
   // Berkeley
