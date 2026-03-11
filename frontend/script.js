@@ -75,7 +75,7 @@ map.on("load", () => {
         150000, "#86efac",
         200000, "#16a34a"
       ],
-      "fill-opacity": 0.68
+      "fill-opacity": 0.6
     }
   });
 
