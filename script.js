@@ -424,7 +424,7 @@ map.on("load", () => {
     const visible = map.getLayoutProperty("bay-ai-fill", "visibility") !== "none";
     const next = visible ? "none" : "visible";
     tractLayers.forEach(id => map.setLayoutProperty(id, "visibility", next));
-    tractToggle.textContent = visible ? "Accessibility Tracts Off" : "Accessibility Tracts On";
+    tractToggle.textContent = visible ? "Tracts Data Layer Off" : "Tracts Data Layer On";
   });
 
   // ── Reset view ──────────────────────────────────────────────────────────────
