@@ -10,6 +10,7 @@ const map = new mapboxgl.Map({
 let hoveredId = null;
 
 let activePopups = [];
+
 const initialView = {
   center: [-122.2711, 37.8044],
   zoom: 11
