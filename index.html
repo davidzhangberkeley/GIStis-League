@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Mapbox Local GeoJSON</title>
+    <title>Grocery Accessibility — Bay Area</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
@@ -10,9 +10,74 @@
     <link rel="stylesheet" href="./style.css">
   </head>
   <body>
-    <h1>Accessiblity Indices of the Bay</h1>
-    <button id="tractToggle">Accessiblity Tracts On</button>
-    <button id="resetView">Back To Bay</button>
+    <h1>Accessibility Indices of the Bay</h1>
+
+    <div id="controls">
+      <button id="tractToggle">Accessibility Tracts On</button>
+      <button id="resetView">Back To Bay</button>
+      <button id="underservedToggle">Show Underserved Areas</button>
+
+      <div class="control-label">Color tracts by:</div>
+      <select id="layerSelect">
+        <optgroup label="Accessibility">
+          <option value="accessibility">Accessibility Index</option>
+          <option value="underserved">Underserved Classification</option>
+        </optgroup>
+        <optgroup label="Race &amp; Ethnicity">
+          <option value="pct_poc">% People of Color</option>
+          <option value="pct_white_nh">% White (Non-Hispanic)</option>
+          <option value="pct_black_nh">% Black (Non-Hispanic)</option>
+          <option value="pct_asian_nh">% Asian (Non-Hispanic)</option>
+          <option value="pct_hispanic">% Hispanic</option>
+        </optgroup>
+        <optgroup label="Socioeconomic">
+          <option value="median_income">Median Income</option>
+          <option value="homeownership">Homeownership Rate</option>
+          <option value="median_home_value">Median Home Value</option>
+          <option value="pop_density">Population Density</option>
+        </optgroup>
+      </select>
+
+      <div class="control-label">Map style:</div>
+      <select id="mapStyleSelect">
+        <option value="mapbox://styles/mapbox/light-v11">Light</option>
+        <option value="mapbox://styles/mapbox/dark-v11">Dark</option>
+        <option value="mapbox://styles/mapbox/satellite-streets-v12">Satellite</option>
+        <option value="mapbox://styles/alo-97/cmm1jk21x004h01smffit3mja" selected>Hybrid</option>
+      </select>
+
+      <div class="control-label">Jump to city:</div>
+      <div id="cityButtons">
+        <button class="city-btn" data-city="sf">SF</button>
+        <button class="city-btn" data-city="oakland">Oakland</button>
+        <button class="city-btn" data-city="berkeley">Berkeley</button>
+      </div>
+    </div>
+
+    <div id="legend">
+      <div class="legend-title" id="legend-title">Accessibility Index</div>
+      <div id="legend-items"></div>
+      <div class="legend-divider"></div>
+      <div class="legend-title">Grocery Stores</div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#3b82f6"></div>
+        <span class="legend-label">Berkeley</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#33a02c"></div>
+        <span class="legend-label">Oakland</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#e31a1c"></div>
+        <span class="legend-label">San Francisco</span>
+      </div>
+    </div>
+
+    <div id="info-panel" class="hidden">
+      <button id="panel-close">✕</button>
+      <div id="panel-content"></div>
+    </div>
+
     <div id="map"></div>
     <script src="config.js"></script>
     <script src="script.js"></script>
