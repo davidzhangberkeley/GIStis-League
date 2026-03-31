@@ -460,59 +460,6 @@ map.on("load", () => {
     updateLegend(layerSelect.value);
   });
 
-  // ── Map style switcher ──────────────────────────────────────────────────────
-  document.getElementById("mapStyleSelect").addEventListener("change", (e) => {
-    map.setStyle(e.target.value);
-    map.once("style.load", () => {
-      // Re-add all sources and layers after style change
-      map.addSource("bay-ai", { type: "geojson", data: "data/bay_AI_geo.geojson", generateId: true });
-      map.addLayer({ id: "bay-ai-fill", type: "fill", source: "bay-ai", paint: { "fill-color": buildColorExpression(layerConfigs[document.getElementById("layerSelect").value] || layerConfigs.accessibility), "fill-opacity": ["case", ["any", ["==", ["to-string", ["get", " Accessibility_Index"]], "NaN"], ["==", ["to-string", ["get", " Accessibility_Index"]], ""], ["==", ["get", " Accessibility_Index"], null]], 0, 0.6] } });
-      map.addLayer({ id: "bay-ai-outline", type: "line", source: "bay-ai", paint: { "line-color": "#111111", "line-width": 1.1, "line-opacity": 0.7 } });
-      map.addLayer({ id: "bay-ai-hover-tract", type: "line", source: "bay-ai", paint: { "line-color": "#000000", "line-width": 2.4 }, filter: ["==", ["id"], -1] });
-      map.addLayer({ id: "bay-ai-underserved", type: "line", source: "bay-ai", filter: ["all", ["!=", ["to-string", ["get", " Accessibility_Index"]], "NaN"], ["!=", ["get", " Accessibility_Index"], null], ["<", ["to-number", ["get", " Accessibility_Index"]], UNDERSERVED_THRESHOLD]], paint: { "line-color": "#e74c3c", "line-width": 3, "line-opacity": 0.9 }, layout: { visibility: "none" } });
-
-      map.addSource("berkeley", { type: "geojson", data: "data/Berkeley1.geojson", generateId: true });
-      map.addLayer({ id: "berkeley-layer", type: "circle", source: "berkeley", paint: { "circle-radius": 6, "circle-color": "#3b82f6", "circle-opacity": 0.85, "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff" } });
-      map.addSource("oakland", { type: "geojson", data: "data/Oakland1.geojson", generateId: true });
-      map.addLayer({ id: "oakland-layer", type: "circle", source: "oakland", paint: { "circle-radius": 6, "circle-color": "#33a02c", "circle-opacity": 0.85, "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff" } });
-      map.addSource("sf", { type: "geojson", data: "data/SF1.geojson", generateId: true });
-      map.addLayer({ id: "sf-layer", type: "circle", source: "sf", paint: { "circle-radius": 6, "circle-color": "#e31a1c", "circle-opacity": 0.85, "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff" } });
-
-      addHover("berkeley", "berkeley-layer");
-      addHover("oakland",  "oakland-layer");
-      addHover("sf",       "sf-layer");
-      ["berkeley-layer", "oakland-layer", "sf-layer"].forEach((layerId) => {
-        const cityKey = layerId.replace("-layer", "");
-        map.on("click", layerId, (e) => {
-          const feature = e.features && e.features[0];
-          if (!feature) return;
-          const view = cityViews[cityKey];
-          if (view) map.flyTo({ ...view, duration: 1400, essential: true });
-          showPanel(buildStoreHTML(feature.properties || {}));
-        });
-        map.on("mouseenter", layerId, () => { map.getCanvas().style.cursor = "pointer"; });
-        map.on("mouseleave", layerId, () => { map.getCanvas().style.cursor = ""; });
-      });
-
-      map.on("mousemove", "bay-ai-fill", (e) => {
-        map.getCanvas().style.cursor = "pointer";
-        if (!e.features || !e.features.length) return;
-        const id = e.features[0].id;
-        if (id === undefined) return;
-        map.setFilter("bay-ai-hover-tract", ["==", ["id"], id]);
-      });
-      map.on("mouseleave", "bay-ai-fill", () => {
-        map.getCanvas().style.cursor = "";
-        map.setFilter("bay-ai-hover-tract", ["==", ["id"], -1]);
-      });
-      map.on("click", "bay-ai-fill", (e) => {
-        const feature = e.features && e.features[0];
-        if (!feature) return;
-        showPanel(buildAreaHTML(feature.properties || {}));
-      });
-    });
-  });
-
   // ── Init legend ─────────────────────────────────────────────────────────────
   updateLegend("accessibility");
 });
