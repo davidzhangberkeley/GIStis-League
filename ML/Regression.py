@@ -8,6 +8,7 @@ from sklearn.metrics import r2_score
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
+!pip install xgboost
 from xgboost import XGBRegressor
 
 #%%
