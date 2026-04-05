@@ -10,7 +10,7 @@ h1 {
   position: absolute;
   top: 20px;
   left: 20px;
-  z-index: 1000;
+  z-index: 2000;
   background: rgba(255, 255, 255, 0.9);
   padding: 15px 20px;
   margin: 0;
@@ -60,7 +60,7 @@ h1 {
   left: 20px;
   z-index: 1000;
 
- padding: 10px 14px;
+  padding: 10px 14px;
   border: 1px solid rgba(60, 60, 60, 0.15);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.9);
@@ -85,9 +85,47 @@ h1 {
   transform: scale(0.98);
 }
 
+#runModel {
+  position: absolute;
+  top: 180px;
+  left: 20px;
+  z-index: 1000;
+
+  padding: 10px 14px;
+  border: 1px solid rgba(60, 60, 60, 0.15);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #2f3a3f;
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+#runModel:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-1px);
+}
+
+#runModel:active {
+  transform: scale(0.98);
+}
+
+#metrics {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #555;
+}
+
 #map {
   position: absolute;
   inset: 0;
+  z-index: 1;
 }
 
 #legend {
@@ -159,3 +197,4 @@ h1 {
   border-top: 4px solid #872d11; /* same as route line */
   box-shadow: 0 0 4px rgba(243, 194, 165, 0.8); /* hint of glow */
 }
+
