@@ -1,3 +1,61 @@
+async function trainModel(data, features) {
+  console.log("🛠️ Starting ML Training...");
+  console.log("Selected Features:", features);
+
+  // 1. Data Extraction & Cleaning
+  // NOTE: Your Python code uses " Accessibility_Index" (with a leading space)
+  const targetKey = " Accessibility_Index"; 
+
+  const cleanedData = data.map(f => {
+    const props = f.properties;
+    const row = {};
+    features.forEach(feat => row[feat] = parseFloat(props[feat]));
+    row.target = parseFloat(props[targetKey]);
+    return row;
+  }).filter(row => {
+    // Drop any row that has a NaN in features or the target
+    return !Object.values(row).some(val => isNaN(val));
+  });
+
+  console.log(`✅ Cleaned Data: ${cleanedData.length} valid tracts found.`);
+  if (cleanedData.length === 0) {
+    alert("Error: No valid data. Check console for property keys!");
+    return;
+  }
+  
+  // Show a sample of what the model is seeing
+  console.table(cleanedData.slice(0, 5));
+
+  // 2. Prepare Tensors
+  const inputs = cleanedData.map(r => features.map(feat => r[feat]));
+  const labels = cleanedData.map(r => [Math.log1p(r.target)]); // log1p matches your Python script!
+
+  const inputTensor = tf.tensor2d(inputs);
+  const labelTensor = tf.tensor2d(labels);
+
+  // 3. Simple Linear Model
+  const model = tf.sequential();
+  model.add(tf.layers.dense({ inputShape: [features.length], units: 1 }));
+
+  model.compile({
+    optimizer: tf.train.adam(0.1),
+    loss: 'meanSquaredError'
+  });
+
+  // 4. Fit the Model (Reduced epochs to 20 for an instant check)
+  await model.fit(inputTensor, labelTensor, {
+    epochs: 20,
+    callbacks: {
+      onEpochEnd: (epoch, logs) => {
+        console.log(`Epoch ${epoch + 1}: Loss = ${logs.loss.toFixed(4)}`);
+      }
+    }
+  });
+
+  console.log("🚀 Model Trained Successfully!");
+  return model;
+}
+
 mapboxgl.accessToken = ALEX_MAPBOX_TOKEN;
 
 const UNDERSERVED_THRESHOLD = 96480; // median Accessibility_Index across all tracts
@@ -297,9 +355,8 @@ function addHover(sourceId, layerId) {
 
 // ─── Map load ─────────────────────────────────────────────────────────────────
 map.on("load", () => {
-
-  // ── Accessibility Index tracts ──────────────────────────────────────────────
-  map.addSource("bay-ai", {
+  // 1. Add Source and Initial Layer
+  map.addSource('bay-ai', {
     type: "geojson",
     data: "data/bay_AI_geo.geojson",
     generateId: true
@@ -323,6 +380,52 @@ map.on("load", () => {
     }
   });
 
+// ─── Machine Learning Trigger ───────────────────────────────────────────────
+  const runMlBtn = document.getElementById("run-ml-btn");
+  const mlResults = document.getElementById("ml-results");
+  const r2Display = document.getElementById("r2-display");
+
+  runMlBtn.addEventListener("click", async () => {
+    // 1. Get the source safely
+    const source = map.getSource('bay-ai');
+    
+    // Check if source exists and HAS data loaded
+    if (!source || !source._data) {
+        alert("Data is still loading or source 'bay-ai' not found. Please wait a moment.");
+        return;
+    }
+
+    runMlBtn.textContent = "⌛ Training...";
+    runMlBtn.disabled = true;
+    mlResults.style.display = "block";
+
+    // 2. Grab selected features
+    const selectedKeys = Array.from(document.querySelectorAll(".ml-feature:checked"))
+      .map(cb => "acs_2024_tracts_berkeley_oakland_sf_density_" + cb.value);
+
+    // 3. Filter data safely
+    // Note the space in " Accessibility_Index" - keep this if your GeoJSON has it!
+    const features = source._data.features.filter(f => 
+      f.properties && 
+      f.properties[" Accessibility_Index"] !== undefined && 
+      !isNaN(parseFloat(f.properties[" Accessibility_Index"]))
+    );
+
+    console.log(`Found ${features.length} valid tracts for training.`);
+
+    try {
+      const model = await trainModel(features, selectedKeys);
+      
+      r2Display.innerHTML = `<strong>Status:</strong> Success<br><strong>Trained on:</strong> ${features.length} tracts`;
+      
+      runMlBtn.textContent = "✅ Model Trained";
+      runMlBtn.style.background = "#27ae60";
+    } catch (err) {
+      console.error("ML Error:", err);
+      runMlBtn.textContent = "❌ Training Failed";
+      runMlBtn.disabled = false;
+    }
+  });
   map.addLayer({
     id: "bay-ai-outline",
     type: "line",
@@ -460,6 +563,6 @@ map.on("load", () => {
     updateLegend(layerSelect.value);
   });
 
-  // ── Init legend ─────────────────────────────────────────────────────────────
+// ── Init legend ─────────────────────────────────────────────────────────────
   updateLegend("accessibility");
-});
+}); 

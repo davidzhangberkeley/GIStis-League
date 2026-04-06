@@ -7,6 +7,7 @@
 
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
     <link rel="stylesheet" href="./style.css">
   </head>
   <body>
@@ -38,6 +39,31 @@
         </optgroup>
       </select>
 
+      <div class="control-label">Machine Learning Model</div>
+      <div id="ml-container" style="background: rgba(255,255,255,0.8); padding: 8px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #ddd;">
+        <div style="font-size: 11px; margin-bottom: 5px; color: #666;">Select Training Features:</div>
+        
+        <label class="feature-checkbox" style="display: flex; align-items: center; font-size: 12px; gap: 5px; margin-bottom: 3px;">
+          <input type="checkbox" class="ml-feature" value="pop_density" checked> Pop. Density
+        </label>
+        <label class="feature-checkbox" style="display: flex; align-items: center; font-size: 12px; gap: 5px; margin-bottom: 3px;">
+          <input type="checkbox" class="ml-feature" value="median_income" checked> Median Income
+        </label>
+        <label class="feature-checkbox" style="display: flex; align-items: center; font-size: 12px; gap: 5px; margin-bottom: 3px;">
+          <input type="checkbox" class="ml-feature" value="pct_poc"> % POC
+        </label>
+
+        <button id="run-ml-btn" style="background: #3498db; color: white; width: 100%; border: none; margin-top: 5px; padding: 6px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+          Run Regression
+        </button>
+        
+        <div id="ml-results" style="font-size: 11px; margin-top: 8px; color: #333; display: none;">
+          <strong>Results:</strong>
+          <div id="r2-display">R²: --</div>
+          <div id="rmse-display">RMSE: --</div>
+        </div>
+      </div>
+      
       <div class="control-label">Jump to city:</div>
       <div id="cityButtons">
         <button class="city-btn" data-city="sf">SF</button>
