@@ -19,6 +19,7 @@
 
       <div class="control-label">Color tracts by:</div>
       <select id="layerSelect">
+
         <optgroup label="Accessibility">
           <option value="accessibility">Accessibility Index</option>
           <option value="underserved">Underserved Classification</option>
@@ -43,6 +44,53 @@
         <button class="city-btn" data-city="sf">SF</button>
         <button class="city-btn" data-city="oakland">Oakland</button>
         <button class="city-btn" data-city="berkeley">Berkeley</button>
+      </div>
+
+      <div class="control-label">Machine learning</div>
+      <button id="runModel">Run ML Model</button>
+
+      <div id="mlMetrics">
+        <div id="r2Value">R²: --</div>
+        <div id="rmseValue">RMSE: --</div>
+      </div>
+
+      <div class="control-label">ML preset</div>
+      <select id="mlPreset">
+        <option value="">Custom selection</option>
+        <option value="demographics">Demographics only</option>
+        <option value="socioeconomic">Socioeconomic only</option>
+        <option value="housing">Housing only</option>
+        <option value="all">All variables</option>
+      </select>
+
+      <div class="control-label">ML parameters</div>
+      <div id="featureList">
+        <label><input type="checkbox" class="ml-feature" value="pct_poc"> % People of Color</label>
+        <label><input type="checkbox" class="ml-feature" value="pct_white_nh"> % White (NH)</label>
+        <label><input type="checkbox" class="ml-feature" value="pct_black_nh"> % Black (NH)</label>
+        <label><input type="checkbox" class="ml-feature" value="pct_asian_nh"> % Asian (NH)</label>
+        <label><input type="checkbox" class="ml-feature" value="pct_hispanic"> % Hispanic</label>
+        <label><input type="checkbox" class="ml-feature" value="median_income"> Median Income</label>
+        <label><input type="checkbox" class="ml-feature" value="median_home_value"> Median Home Value</label>
+        <label><input type="checkbox" class="ml-feature" value="homeownership_rate"> Homeownership Rate</label>
+        <label><input type="checkbox" class="ml-feature" value="pop_density"> Population Density</label>
+        <label><input type="checkbox" class="ml-feature" value="total_pop"> Total Population</label>
+        <label><input type="checkbox" class="ml-feature" value="white_nh"> White NH</label>
+        <label><input type="checkbox" class="ml-feature" value="black_nh"> Black NH</label>
+        <label><input type="checkbox" class="ml-feature" value="asian_nh"> Asian NH</label>
+        <label><input type="checkbox" class="ml-feature" value="hispanic"> Hispanic</label>
+        <label><input type="checkbox" class="ml-feature" value="housing_units_total"> Housing Units</label>
+        <label><input type="checkbox" class="ml-feature" value="owner_occupied"> Owner Occupied</label>
+        <label><input type="checkbox" class="ml-feature" value="renter_occupied"> Renter Occupied</label>
+        <label><input type="checkbox" class="ml-feature" value="area_sq_miles"> Area (sq miles)</label>
+        <label><input type="checkbox" class="ml-feature" value="group_0_17"> Age 0–17</label>
+        <label><input type="checkbox" class="ml-feature" value="group_18_34"> Age 18–34</label>
+        <label><input type="checkbox" class="ml-feature" value="group_35_49"> Age 35–49</label>
+        <label><input type="checkbox" class="ml-feature" value="group_50_up"> Age 50+</label>
+        <label><input type="checkbox" class="ml-feature" value="below_high_school"> Below High School</label>
+        <label><input type="checkbox" class="ml-feature" value="high_school_grad"> High School Grad</label>
+        <label><input type="checkbox" class="ml-feature" value="some_college_assoc"> Some College / Assoc</label>
+        <label><input type="checkbox" class="ml-feature" value="bachelors_plus"> Bachelors+</label>
       </div>
     </div>
 
