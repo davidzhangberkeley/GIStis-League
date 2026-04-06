@@ -1,0 +1,682 @@
+mapboxgl.accessToken = ALEX_MAPBOX_TOKEN;
+
+const UNDERSERVED_THRESHOLD = 96480; // median Accessibility_Index across all tracts
+
+const map = new mapboxgl.Map({
+  container: "map",
+  style: "mapbox://styles/alo-97/cmm1jk21x004h01smffit3mja",
+  center: [-122.2711, 37.8044],
+  zoom: 11
+});
+
+// ─── City views ───────────────────────────────────────────────────────────────
+const cityViews = {
+  sf:       { center: [-122.4194, 37.7749], zoom: 12.4 },
+  oakland:  { center: [-122.2711, 37.8044], zoom: 12.6 },
+  berkeley: { center: [-122.2730, 37.8715], zoom: 13.2 }
+};
+
+const initialView = { center: [-122.2711, 37.8044], zoom: 11 };
+
+// ─── Info Panel ───────────────────────────────────────────────────────────────
+const infoPanel    = document.getElementById("info-panel");
+const panelContent = document.getElementById("panel-content");
+
+function showPanel(html) {
+  panelContent.innerHTML = html;
+  infoPanel.classList.remove("hidden");
+}
+
+function hidePanel() {
+  infoPanel.classList.add("hidden");
+  panelContent.innerHTML = "";
+}
+
+document.getElementById("panel-close").addEventListener("click", hidePanel);
+
+// ─── Panel HTML builders ──────────────────────────────────────────────────────
+function buildAreaHTML(props) {
+  // Support both old prefixed field names and new flat CSV field names
+  const ai    = props["Accessibility_Index"] ?? props[" Accessibility_Index"] ?? null;
+  const aiNum = parseFloat(ai);
+  const tract  = props.NAMELSAD ?? props.GEOID ?? "Unknown area";
+  const city   = props.CDTFA_CITY ?? props.City_name ?? props.CENSUS_PLA ?? "";
+  const county = props.CDTFA_COUN ?? props.COUNTYFP ?? "";
+
+  // New dataset flat field names first, old prefixed as fallback
+  const pf = "acs_2024_tracts_berkeley_oakland_sf_density_";
+  const popDensity    = props.pop_density        ?? props[pf + "pop_density"]        ?? "";
+  const medianIncome  = props.median_income       ?? props[pf + "median_income"]       ?? "";
+  const pctPoc        = props.pct_poc             ?? props[pf + "pct_poc"]             ?? "";
+  const homeownership = props.homeownership_rate  ?? props[pf + "homeownership_rate"]  ?? "";
+  const medianHome    = props.median_home_value   ?? props[pf + "median_home_value"]   ?? "";
+  const pctWhite      = props.pct_white_nh        ?? props[pf + "pct_white_nh"]        ?? "";
+  const pctBlack      = props.pct_black_nh        ?? props[pf + "pct_black_nh"]        ?? "";
+  const pctAsian      = props.pct_asian_nh        ?? props[pf + "pct_asian_nh"]        ?? "";
+  const pctHispanic   = props.pct_hispanic        ?? props[pf + "pct_hispanic"]        ?? "";
+
+  // ML predicted value (injected onto features by ML layer)
+  const mlPred     = props._ml_predicted  ?? null;
+  const mlResidual = props._ml_residual   ?? null;
+
+  const isUnderserved = !isNaN(aiNum) && aiNum < UNDERSERVED_THRESHOLD;
+  const badge = !isNaN(aiNum)
+    ? `<span class="badge ${isUnderserved ? "badge-under" : "badge-over"}">
+         ${isUnderserved ? "Underserved" : "Well Served"}
+       </span>`
+    : "";
+
+  const pct    = (v) => v !== "" ? `${(Number(v) * 100).toFixed(1)}%` : "";
+  const dollar = (v) => v !== "" ? `$${Number(v).toLocaleString()}` : "";
+  const num    = (v) => v !== "" ? Number(v).toLocaleString() : "";
+
+  const mlSection = mlPred !== null ? `
+    <div class="panel-divider"></div>
+    <div class="panel-section-label">ML Model</div>
+    <div class="panel-row"><span class="panel-key">Predicted Index</span><span>${Number(mlPred).toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
+    ${mlResidual !== null ? `<div class="panel-row"><span class="panel-key">Over/Under</span><span style="color:${mlResidual > 0 ? '#27ae60' : '#e74c3c'}">${mlResidual > 0 ? "+" : ""}${Number(mlResidual).toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>` : ""}
+  ` : "";
+
+  return `
+    <div class="panel-title">${tract}</div>
+    ${city ? `<div class="panel-meta">${city}${county ? `, ${county}` : ""}</div>` : ""}
+    <div class="panel-divider"></div>
+
+    <div class="panel-section-label">Accessibility</div>
+    <div class="panel-row"><span class="panel-key">Index</span><span>${isNaN(aiNum) ? "N/A" : aiNum.toLocaleString()}</span></div>
+    <div class="panel-row panel-badge-row">${badge}</div>
+
+    ${medianIncome || medianHome || homeownership ? `
+    <div class="panel-divider"></div>
+    <div class="panel-section-label">Socioeconomic</div>
+    ${medianIncome  ? `<div class="panel-row"><span class="panel-key">Median Income</span><span>${dollar(medianIncome)}</span></div>` : ""}
+    ${medianHome    ? `<div class="panel-row"><span class="panel-key">Median Home Value</span><span>${dollar(medianHome)}</span></div>` : ""}
+    ${homeownership ? `<div class="panel-row"><span class="panel-key">Homeownership</span><span>${pct(homeownership)}</span></div>` : ""}
+    ${popDensity    ? `<div class="panel-row"><span class="panel-key">Pop. Density</span><span>${num(popDensity)} / sq mi</span></div>` : ""}
+    ` : ""}
+
+    ${pctPoc || pctWhite ? `
+    <div class="panel-divider"></div>
+    <div class="panel-section-label">Race &amp; Ethnicity</div>
+    ${pctPoc      ? `<div class="panel-row"><span class="panel-key">% People of Color</span><span>${pct(pctPoc)}</span></div>` : ""}
+    ${pctWhite    ? `<div class="panel-row"><span class="panel-key">% White (NH)</span><span>${pct(pctWhite)}</span></div>` : ""}
+    ${pctBlack    ? `<div class="panel-row"><span class="panel-key">% Black (NH)</span><span>${pct(pctBlack)}</span></div>` : ""}
+    ${pctAsian    ? `<div class="panel-row"><span class="panel-key">% Asian (NH)</span><span>${pct(pctAsian)}</span></div>` : ""}
+    ${pctHispanic ? `<div class="panel-row"><span class="panel-key">% Hispanic</span><span>${pct(pctHispanic)}</span></div>` : ""}
+    ` : ""}
+
+    ${mlSection}
+  `;
+}
+
+function buildStoreHTML(props) {
+  const name     = props.company_business_name ?? props.company_bu ?? "Unknown business";
+  const addr     = props.formatted_address ?? props.formatted_ ?? `${props.address ?? ""}${props.city ? ", " + props.city : ""}`;
+  const category = props.business_category ?? props.business_c ?? "";
+  const industry = props.industry_description ?? props.industry_d ?? "";
+  const employees = props.employee_count ?? props.employee_c ?? "";
+  const sqft     = props.square_footage ?? props.square_foo ?? "";
+  const sales    = props.sales_volume ?? props.sales_volu ?? "";
+
+  return `
+    <div class="panel-title">${name}</div>
+    ${addr ? `<div class="panel-meta">${addr}</div>` : ""}
+    <div class="panel-divider"></div>
+    <div class="panel-section-label">Business Info</div>
+    ${category  ? `<div class="panel-row"><span class="panel-key">Category</span><span>${category}</span></div>` : ""}
+    ${industry  ? `<div class="panel-row"><span class="panel-key">Industry</span><span>${industry}</span></div>` : ""}
+    ${employees ? `<div class="panel-row"><span class="panel-key">Employees</span><span>${employees}</span></div>` : ""}
+    ${sqft      ? `<div class="panel-row"><span class="panel-key">Sq Ft</span><span>${sqft}</span></div>` : ""}
+    ${sales     ? `<div class="panel-row"><span class="panel-key">Sales Volume</span><span>${sales}</span></div>` : ""}
+  `;
+}
+
+// ─── Layer configs ────────────────────────────────────────────────────────────
+const pf = "acs_2024_tracts_berkeley_oakland_sf_density_";
+
+const layerConfigs = {
+  accessibility: {
+    label: "Accessibility Index",
+    field: "Accessibility_Index",
+    type: "continuous",
+    stops: [0, "#7f0000", 20000, "#d7301f", 40000, "#fc8d59", 60000, "#fdbb84",
+            80000, "#fee8c8", 100000, "#d9f0a3", 140000, "#78c679", 180000, "#31a354", 220000, "#006837"],
+    legendLabels: ["0", "60k", "100k", "180k", "220k+"],
+    legendColors: ["#7f0000", "#fdbb84", "#d9f0a3", "#31a354", "#006837"]
+  },
+  underserved: {
+    label: "Underserved Classification",
+    field: "Accessibility_Index",
+    type: "categorical",
+    expression: [
+      "case",
+      ["all",
+        ["!=", ["to-string", ["get", "Accessibility_Index"]], "NaN"],
+        ["!=", ["get", "Accessibility_Index"], null],
+        ["<", ["to-number", ["get", "Accessibility_Index"]], UNDERSERVED_THRESHOLD]
+      ], "#e74c3c",
+      ["all",
+        ["!=", ["to-string", ["get", "Accessibility_Index"]], "NaN"],
+        ["!=", ["get", "Accessibility_Index"], null]
+      ], "#27ae60",
+      "rgba(0,0,0,0)"
+    ],
+    legendItems: [
+      { color: "#e74c3c", label: `Underserved (AI < ${UNDERSERVED_THRESHOLD.toLocaleString()})` },
+      { color: "#27ae60", label: "Well Served" }
+    ]
+  },
+  // ML layers — populated dynamically after model runs
+  ml_predicted: {
+    label: "ML Predicted Index",
+    field: "_ml_predicted",
+    type: "continuous",
+    stops: [0, "#7f0000", 20000, "#d7301f", 40000, "#fc8d59", 60000, "#fdbb84",
+            80000, "#fee8c8", 100000, "#d9f0a3", 140000, "#78c679", 180000, "#31a354", 220000, "#006837"],
+    legendLabels: ["0", "60k", "100k", "180k", "220k+"],
+    legendColors: ["#7f0000", "#fdbb84", "#d9f0a3", "#31a354", "#006837"]
+  },
+  ml_residual: {
+    label: "ML: Over / Underserved",
+    field: "_ml_residual",
+    type: "categorical",
+    expression: [
+      "case",
+      ["all", ["!=", ["get", "_ml_residual"], null], ["<", ["get", "_ml_residual"], 0]],
+      "#e74c3c",
+      ["all", ["!=", ["get", "_ml_residual"], null], [">=", ["get", "_ml_residual"], 0]],
+      "#27ae60",
+      "rgba(0,0,0,0)"
+    ],
+    legendItems: [
+      { color: "#e74c3c", label: "Underserved (predicted > actual)" },
+      { color: "#27ae60", label: "Well Served (actual ≥ predicted)" }
+    ]
+  },
+  pct_poc: {
+    label: "% People of Color",
+    field: "pct_poc",
+    type: "continuous",
+    stops: [0, "#fff7f3", 0.25, "#fde0dd", 0.5, "#f768a1", 0.75, "#ae017e", 1.0, "#49006a"],
+    legendLabels: ["0%", "25%", "50%", "75%", "100%"],
+    legendColors: ["#fff7f3", "#fde0dd", "#f768a1", "#ae017e", "#49006a"]
+  },
+  pct_white_nh: {
+    label: "% White (Non-Hispanic)",
+    field: "pct_white_nh",
+    type: "continuous",
+    stops: [0, "#f7fbff", 0.2, "#c6dbef", 0.4, "#6baed6", 0.6, "#2171b5", 0.83, "#08306b"],
+    legendLabels: ["0%", "20%", "40%", "60%", "83%"],
+    legendColors: ["#f7fbff", "#c6dbef", "#6baed6", "#2171b5", "#08306b"]
+  },
+  pct_black_nh: {
+    label: "% Black (Non-Hispanic)",
+    field: "pct_black_nh",
+    type: "continuous",
+    stops: [0, "#fff5eb", 0.15, "#fdd0a2", 0.3, "#fd8d3c", 0.5, "#d94801", 0.73, "#7f2704"],
+    legendLabels: ["0%", "15%", "30%", "50%", "73%"],
+    legendColors: ["#fff5eb", "#fdd0a2", "#fd8d3c", "#d94801", "#7f2704"]
+  },
+  pct_asian_nh: {
+    label: "% Asian (Non-Hispanic)",
+    field: "pct_asian_nh",
+    type: "continuous",
+    stops: [0, "#f7fcfd", 0.25, "#b2e2e2", 0.5, "#66c2a4", 0.75, "#238b45", 1.0, "#00441b"],
+    legendLabels: ["0%", "25%", "50%", "75%", "100%"],
+    legendColors: ["#f7fcfd", "#b2e2e2", "#66c2a4", "#238b45", "#00441b"]
+  },
+  pct_hispanic: {
+    label: "% Hispanic",
+    field: "pct_hispanic",
+    type: "continuous",
+    stops: [0, "#ffffe5", 0.2, "#f7fcb9", 0.4, "#addd8e", 0.6, "#31a354", 0.89, "#004529"],
+    legendLabels: ["0%", "20%", "40%", "60%", "89%"],
+    legendColors: ["#ffffe5", "#f7fcb9", "#addd8e", "#31a354", "#004529"]
+  },
+  median_income: {
+    label: "Median Income",
+    field: "median_income",
+    type: "continuous",
+    stops: [0, "#67000d", 50000, "#cb181d", 100000, "#fc4e2a", 150000, "#feb24c", 200000, "#fed976", 250000, "#ffffcc"],
+    legendLabels: ["$0", "$50k", "$100k", "$150k", "$200k", "$250k+"],
+    legendColors: ["#67000d", "#cb181d", "#fc4e2a", "#feb24c", "#fed976", "#ffffcc"]
+  },
+  homeownership: {
+    label: "Homeownership Rate",
+    field: "homeownership_rate",
+    type: "continuous",
+    stops: [0, "#fff7fb", 0.2, "#a6bddb", 0.4, "#1c9099", 0.6, "#016450", 0.8, "#014636", 1.0, "#004529"],
+    legendLabels: ["0%", "20%", "40%", "60%", "80%", "100%"],
+    legendColors: ["#fff7fb", "#a6bddb", "#1c9099", "#016450", "#014636", "#004529"]
+  },
+  median_home_value: {
+    label: "Median Home Value",
+    field: "median_home_value",
+    type: "continuous",
+    stops: [400000, "#efedf5", 700000, "#bcbddc", 1000000, "#807dba", 1500000, "#4a1486", 2000001, "#1a0050"],
+    legendLabels: ["$400k", "$700k", "$1M", "$1.5M", "$2M+"],
+    legendColors: ["#efedf5", "#bcbddc", "#807dba", "#4a1486", "#1a0050"]
+  },
+  pop_density: {
+    label: "Population Density",
+    field: "pop_density",
+    type: "continuous",
+    stops: [0, "#ffffcc", 10000, "#fed976", 30000, "#feb24c", 60000, "#fd8d3c", 100000, "#e31a1c", 190000, "#800026"],
+    legendLabels: ["0", "10k", "30k", "60k", "100k", "190k+"],
+    legendColors: ["#ffffcc", "#fed976", "#feb24c", "#fd8d3c", "#e31a1c", "#800026"]
+  }
+};
+
+function buildColorExpression(config) {
+  if (config.expression) return config.expression;
+  const expr = ["interpolate", ["linear"], ["to-number", ["get", config.field], 0]];
+  for (let i = 0; i < config.stops.length; i += 2) {
+    expr.push(config.stops[i], config.stops[i + 1]);
+  }
+  return expr;
+}
+
+// ─── Legend ───────────────────────────────────────────────────────────────────
+function updateLegend(key) {
+  const config = layerConfigs[key];
+  if (!config) return;
+  document.getElementById("legend-title").textContent = config.label;
+  const legendItems = document.getElementById("legend-items");
+
+  if (config.type === "categorical") {
+    legendItems.innerHTML = config.legendItems.map(item => `
+      <div class="legend-item">
+        <div class="legend-swatch" style="background:${item.color}"></div>
+        <span class="legend-label">${item.label}</span>
+      </div>
+    `).join("");
+  } else {
+    const gradient = `linear-gradient(to right, ${config.legendColors.join(", ")})`;
+    const minLabel = config.legendLabels[0];
+    const maxLabel = config.legendLabels[config.legendLabels.length - 1];
+    legendItems.innerHTML = `
+      <div class="legend-gradient" style="background: ${gradient}"></div>
+      <div class="legend-gradient-labels">
+        <span>${minLabel}</span>
+        <span>${maxLabel}</span>
+      </div>
+    `;
+  }
+}
+
+// ─── Hover helper ─────────────────────────────────────────────────────────────
+let hoveredId = null;
+
+function addHover(sourceId, layerId) {
+  map.addLayer({
+    id: `${layerId}-hover`,
+    type: "circle",
+    source: sourceId,
+    paint: {
+      "circle-radius": 10,
+      "circle-color": "#000000",
+      "circle-opacity": 0.15
+    },
+    filter: ["==", ["id"], -1]
+  });
+
+  map.on("mousemove", layerId, (e) => {
+    map.getCanvas().style.cursor = "pointer";
+    if (!e.features.length) return;
+    const id = e.features[0].id;
+    if (id === undefined) return;
+    if (hoveredId !== null) map.setFilter(`${layerId}-hover`, ["==", ["id"], -1]);
+    hoveredId = id;
+    map.setFilter(`${layerId}-hover`, ["==", ["id"], hoveredId]);
+  });
+
+  map.on("mouseleave", layerId, () => {
+    map.getCanvas().style.cursor = "";
+    hoveredId = null;
+    map.setFilter(`${layerId}-hover`, ["==", ["id"], -1]);
+  });
+}
+
+// ─── ML Panel UI ──────────────────────────────────────────────────────────────
+function buildMLPanel() {
+  const container = document.getElementById("ml-feature-groups");
+  const groups = {};
+
+  // Group features by their group label
+  Object.entries(ML_FEATURES).forEach(([key, meta]) => {
+    if (!groups[meta.group]) groups[meta.group] = [];
+    groups[meta.group].push({ key, label: meta.label });
+  });
+
+  container.innerHTML = Object.entries(groups).map(([groupName, features]) => `
+    <div class="ml-feature-group">
+      <div class="ml-group-title">${groupName}</div>
+      <div class="ml-feature-grid">
+        ${features.map(f => `
+          <div class="ml-chip selected" data-feature="${f.key}" title="${f.key}">${f.label}</div>
+        `).join("")}
+      </div>
+    </div>
+  `).join("");
+
+  // Chip toggle
+  container.addEventListener("click", (e) => {
+    const chip = e.target.closest(".ml-chip");
+    if (chip) chip.classList.toggle("selected");
+  });
+
+  // Select / Deselect all
+  document.getElementById("ml-select-all").addEventListener("click", () => {
+    document.querySelectorAll(".ml-chip").forEach(c => c.classList.add("selected"));
+  });
+  document.getElementById("ml-deselect-all").addEventListener("click", () => {
+    document.querySelectorAll(".ml-chip").forEach(c => c.classList.remove("selected"));
+  });
+}
+
+function getSelectedFeatures() {
+  return Array.from(document.querySelectorAll(".ml-chip.selected")).map(c => c.dataset.feature);
+}
+
+// ─── ML Run handler ───────────────────────────────────────────────────────────
+async function handleRunML() {
+  const selected = getSelectedFeatures();
+
+  const errorEl    = document.getElementById("ml-error");
+  const resultsEl  = document.getElementById("ml-results");
+  const progressEl = document.getElementById("ml-progress-wrap");
+  const runBtn     = document.getElementById("ml-run-btn");
+  const progressBar = document.getElementById("ml-progress-bar");
+  const progressLabel = document.getElementById("ml-progress-label");
+
+  // Reset UI
+  errorEl.classList.add("hidden");
+  resultsEl.classList.add("hidden");
+  errorEl.textContent = "";
+
+  if (selected.length === 0) {
+    errorEl.textContent = "Please select at least one feature.";
+    errorEl.classList.remove("hidden");
+    return;
+  }
+
+  // Show progress
+  runBtn.disabled = true;
+  runBtn.textContent = "Running…";
+  progressBar.style.width = "5%";
+  progressEl.classList.remove("hidden");
+  progressLabel.textContent = "Loading data…";
+
+  try {
+    progressBar.style.width = "10%";
+    progressLabel.textContent = "Training model…";
+
+    const results = await runMLModel(selected);
+
+    progressBar.style.width = "95%";
+    progressLabel.textContent = "Updating map…";
+
+    // Inject ML predictions into the GeoJSON source
+    applyMLResultsToMap(results);
+
+    progressBar.style.width = "100%";
+    progressLabel.textContent = "Done!";
+
+    // Show results
+    document.getElementById("ml-r2").textContent   = results.r2.toFixed(4);
+    document.getElementById("ml-rmse").textContent = results.rmse.toFixed(4);
+    document.getElementById("ml-split").textContent = `${results.n_train} / ${results.n_test}`;
+    resultsEl.classList.remove("hidden");
+
+    // Enable ML options in dropdown
+    document.getElementById("ml-option").disabled = false;
+    document.getElementById("ml-residual-option").disabled = false;
+
+    setTimeout(() => {
+      progressEl.classList.add("hidden");
+      progressBar.style.width = "0%";
+    }, 1000);
+
+  } catch (err) {
+    progressEl.classList.add("hidden");
+    progressBar.style.width = "0%";
+    errorEl.textContent = "Error: " + err.message;
+    errorEl.classList.remove("hidden");
+    console.error(err);
+  } finally {
+    runBtn.disabled = false;
+    runBtn.textContent = "▶ GO — Run Model";
+  }
+}
+
+// ─── Apply ML results to Mapbox GeoJSON source ────────────────────────────────
+function applyMLResultsToMap(results) {
+  const source = map.getSource("bay-ai");
+  if (!source) return;
+
+  const geojson = source._data;
+  if (!geojson || !geojson.features) return;
+
+  // Build lookup: GEOID -> prediction
+  const lookup = {};
+  results.predictions.forEach(p => {
+    lookup[String(p.geoid)] = p;
+  });
+
+  // Stamp _ml_predicted and _ml_residual onto each feature
+  geojson.features.forEach(feature => {
+    const geoid = String(feature.properties.GEOID ?? feature.properties.geoid ?? "");
+    const match = lookup[geoid];
+    if (match) {
+      feature.properties._ml_predicted = match.predicted;
+      feature.properties._ml_residual  = match.predicted - match.actual; // positive = model thinks should be higher = underserved
+    } else {
+      feature.properties._ml_predicted = null;
+      feature.properties._ml_residual  = null;
+    }
+  });
+
+  source.setData(geojson);
+}
+
+// ─── Map load ─────────────────────────────────────────────────────────────────
+map.on("load", () => {
+
+  // ── Accessibility Index tracts ──────────────────────────────────────────────
+  map.addSource("bay-ai", {
+    type: "geojson",
+    data: "data/bay_AI_geo.geojson",
+    generateId: true
+  });
+
+  map.addLayer({
+    id: "bay-ai-fill",
+    type: "fill",
+    source: "bay-ai",
+    paint: {
+      "fill-color": buildColorExpression(layerConfigs.accessibility),
+      "fill-opacity": [
+        "case",
+        ["any",
+          ["==", ["to-string", ["get", "Accessibility_Index"]], "NaN"],
+          ["==", ["to-string", ["get", "Accessibility_Index"]], ""],
+          ["==", ["get", "Accessibility_Index"], null]
+        ],
+        0, 0.6
+      ]
+    }
+  });
+
+  map.addLayer({
+    id: "bay-ai-outline",
+    type: "line",
+    source: "bay-ai",
+    paint: { "line-color": "#111111", "line-width": 1.1, "line-opacity": 0.7 }
+  });
+
+  map.addLayer({
+    id: "bay-ai-hover-tract",
+    type: "line",
+    source: "bay-ai",
+    paint: { "line-color": "#000000", "line-width": 2.4 },
+    filter: ["==", ["id"], -1]
+  });
+
+  // Underserved border overlay (initially hidden)
+  map.addLayer({
+    id: "bay-ai-underserved",
+    type: "line",
+    source: "bay-ai",
+    filter: [
+      "all",
+      ["!=", ["to-string", ["get", "Accessibility_Index"]], "NaN"],
+      ["!=", ["get", "Accessibility_Index"], null],
+      ["<", ["to-number", ["get", "Accessibility_Index"]], UNDERSERVED_THRESHOLD]
+    ],
+    paint: { "line-color": "#e74c3c", "line-width": 3, "line-opacity": 0.9 },
+    layout: { visibility: "none" }
+  });
+
+  let hoveredAreaId = null;
+
+  map.on("mousemove", "bay-ai-fill", (e) => {
+    map.getCanvas().style.cursor = "pointer";
+    if (!e.features || !e.features.length) return;
+    const id = e.features[0].id;
+    if (id === undefined) return;
+    hoveredAreaId = id;
+    map.setFilter("bay-ai-hover-tract", ["==", ["id"], hoveredAreaId]);
+  });
+
+  map.on("mouseleave", "bay-ai-fill", () => {
+    map.getCanvas().style.cursor = "";
+    hoveredAreaId = null;
+    map.setFilter("bay-ai-hover-tract", ["==", ["id"], -1]);
+  });
+
+  map.on("click", "bay-ai-fill", (e) => {
+    const feature = e.features && e.features[0];
+    if (!feature) return;
+    showPanel(buildAreaHTML(feature.properties || {}));
+  });
+
+  // ── Berkeley ────────────────────────────────────────────────────────────────
+  map.addSource("berkeley", { type: "geojson", data: "data/Berkeley1.geojson", generateId: true });
+  map.addLayer({
+    id: "berkeley-layer", type: "circle", source: "berkeley",
+    paint: { "circle-radius": 6, "circle-color": "#3b82f6", "circle-opacity": 0.85,
+             "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff" }
+  });
+
+  // ── Oakland ─────────────────────────────────────────────────────────────────
+  map.addSource("oakland", { type: "geojson", data: "data/Oakland1.geojson", generateId: true });
+  map.addLayer({
+    id: "oakland-layer", type: "circle", source: "oakland",
+    paint: { "circle-radius": 6, "circle-color": "#33a02c", "circle-opacity": 0.85,
+             "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff" }
+  });
+
+  // ── San Francisco ───────────────────────────────────────────────────────────
+  map.addSource("sf", { type: "geojson", data: "data/SF1.geojson", generateId: true });
+  map.addLayer({
+    id: "sf-layer", type: "circle", source: "sf",
+    paint: { "circle-radius": 6, "circle-color": "#e31a1c", "circle-opacity": 0.85,
+             "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff" }
+  });
+
+  addHover("berkeley", "berkeley-layer");
+  addHover("oakland",  "oakland-layer");
+  addHover("sf",       "sf-layer");
+
+  ["berkeley-layer", "oakland-layer", "sf-layer"].forEach((layerId) => {
+    const cityKey = layerId.replace("-layer", "");
+    map.on("click", layerId, (e) => {
+      const feature = e.features && e.features[0];
+      if (!feature) return;
+      const view = cityViews[cityKey];
+      if (view) map.flyTo({ ...view, duration: 1400, essential: true });
+      showPanel(buildStoreHTML(feature.properties || {}));
+    });
+    map.on("mouseenter", layerId, () => { map.getCanvas().style.cursor = "pointer"; });
+    map.on("mouseleave", layerId, () => { map.getCanvas().style.cursor = ""; });
+  });
+
+  // ── Tract toggle ────────────────────────────────────────────────────────────
+  const tractLayers = ["bay-ai-fill", "bay-ai-outline", "bay-ai-hover-tract"];
+  const tractToggle = document.getElementById("tractToggle");
+  tractToggle.addEventListener("click", () => {
+    const visible = map.getLayoutProperty("bay-ai-fill", "visibility") !== "none";
+    const next = visible ? "none" : "visible";
+    tractLayers.forEach(id => map.setLayoutProperty(id, "visibility", next));
+    tractToggle.textContent = visible ? "Tracts Data Layer Off" : "Tracts Data Layer On";
+  });
+
+  // ── Reset view ──────────────────────────────────────────────────────────────
+  document.getElementById("resetView").addEventListener("click", () => {
+    hidePanel();
+    map.flyTo({ ...initialView, duration: 1400, essential: true });
+  });
+
+  // ── Underserved toggle ──────────────────────────────────────────────────────
+  const underservedToggle = document.getElementById("underservedToggle");
+  underservedToggle.addEventListener("click", () => {
+    const visible = map.getLayoutProperty("bay-ai-underserved", "visibility") !== "none";
+    const next = visible ? "none" : "visible";
+    map.setLayoutProperty("bay-ai-underserved", "visibility", next);
+    underservedToggle.classList.toggle("active", !visible);
+    underservedToggle.textContent = visible ? "Show Underserved Areas" : "Hide Underserved Areas";
+  });
+
+  // ── City buttons ────────────────────────────────────────────────────────────
+  document.querySelectorAll(".city-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const view = cityViews[btn.dataset.city];
+      if (view) map.flyTo({ ...view, duration: 1200, essential: true });
+    });
+  });
+
+  // ── Layer dropdown ──────────────────────────────────────────────────────────
+  const layerSelect = document.getElementById("layerSelect");
+  layerSelect.addEventListener("change", () => {
+    const config = layerConfigs[layerSelect.value];
+    if (!config) return;
+    map.setPaintProperty("bay-ai-fill", "fill-color", buildColorExpression(config));
+    updateLegend(layerSelect.value);
+  });
+
+  // ── Init legend ─────────────────────────────────────────────────────────────
+  updateLegend("accessibility");
+
+  // ── ML Panel setup ──────────────────────────────────────────────────────────
+  buildMLPanel();
+
+  const mlPanel       = document.getElementById("ml-panel");
+  const mlPanelToggle = document.getElementById("mlPanelToggle");
+
+  mlPanelToggle.addEventListener("click", () => {
+    const hidden = mlPanel.classList.toggle("hidden");
+    mlPanelToggle.classList.toggle("active", !hidden);
+    // Hide info panel when ML panel opens
+    if (!hidden) hidePanel();
+  });
+
+  document.getElementById("ml-panel-close").addEventListener("click", () => {
+    mlPanel.classList.add("hidden");
+    mlPanelToggle.classList.remove("active");
+  });
+
+  document.getElementById("ml-run-btn").addEventListener("click", handleRunML);
+
+  // ── ML map view buttons ─────────────────────────────────────────────────────
+  document.getElementById("ml-view-predicted").addEventListener("click", () => {
+    layerSelect.value = "ml_predicted";
+    map.setPaintProperty("bay-ai-fill", "fill-color", buildColorExpression(layerConfigs.ml_predicted));
+    updateLegend("ml_predicted");
+  });
+
+  document.getElementById("ml-view-residual").addEventListener("click", () => {
+    layerSelect.value = "ml_residual";
+    map.setPaintProperty("bay-ai-fill", "fill-color", buildColorExpression(layerConfigs.ml_residual));
+    updateLegend("ml_residual");
+  });
+});
