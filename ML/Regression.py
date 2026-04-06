@@ -11,28 +11,22 @@ from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
 
 #%%
-df = pd.read_csv('../Data/cleaned_dataset.csv')
+df = pd.read_csv('../old_data/data_set_gis_0331.csv')
 df.columns = df.columns.str.strip()
 df = df.dropna()
 
 #%%
-drop_cols = ['Unnamed: 0', 'fid', 'GEOID', 'COUNTYFP', 'NAMELSAD', 'median_hh_',
-       'median_h_1', 'CDTFA_COPR', 'CDTFA_COUN', 'CENSUS_PLA',
+drop_cols = ['fid', 'STATEFP', 'COUNTYFP', 'TRACTCE', 'GEOID', 'NAME', 'NAMELSAD',
+       'MTFCC', 'FUNCSTAT', 'ALAND', 'AWATER', 'INTPTLAT', 'INTPTLON',
+       'layer', 'path', 'field_1', 'median_hh_', 'median_h_1',
+       'CDTFA_COPR', 'CDTFA_CITY', 'CDTFA_COUN', 'CENSUS_PLA',
        'CENSUS_GEO', 'CENSUS_P_1', 'GNIS_PLACE', 'GNIS_ID',
-       'acs_2024_tracts_berkeley_oakland_sf_density_city',
-       'acs_2024_tracts_berkeley_oakland_sf_density_NAME',
-       'acs_2024_tracts_berkeley_oakland_sf_density_year',
-       'acs_2024_tracts_berkeley_oakland_sf_density_white_nh',
-       'acs_2024_tracts_berkeley_oakland_sf_density_black_nh',
-       'acs_2024_tracts_berkeley_oakland_sf_density_asian_nh',
-       'acs_2024_tracts_berkeley_oakland_sf_density_hispanic',
-       'acs_2024_tracts_berkeley_oakland_sf_density_pop_density',
-       'weight_supply_sum', 'NAME_y','CDTFA_CITY', 'NAME_x',
-       'acs_2024_tracts_berkeley_oakland_sf_density_pct_white_nh',
-       'acs_2024_tracts_berkeley_oakland_sf_density_pct_black_nh',
-       'acs_2024_tracts_berkeley_oakland_sf_density_pct_asian_nh',
-       'acs_2024_tracts_berkeley_oakland_sf_density_pct_hispanic'
+       'City_name', 'year', 'white_nh', 'black_nh', 'asian_nh', 'hispanic',
+       'pct_white_nh', 'pct_black_nh', 'pct_asian_nh', 'pct_hispanic',
+       'weight_supply_sum', 'NAME_x', 'NAME_y',
+       'pop_density'
              ]
+drop_cols = [c for c in drop_cols if c in df.columns]
 df = df.drop(columns=drop_cols)
 #%%
 # Remove outliers in the target variable

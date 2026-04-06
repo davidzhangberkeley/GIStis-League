@@ -7,21 +7,31 @@
 
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./style.css">
   </head>
   <body>
     <h1>Accessibility Indices of the Bay</h1>
 
     <div id="controls">
-      <button id="tractToggle">Tracts Data Layer On</button>
-      <button id="resetView">Back To Bay</button>
-      <button id="underservedToggle">Show Underserved Areas</button>
+      <div class="control-label">Navigate</div>
+      <div id="navButtons">
+        <button id="resetView">Bay Area</button>
+        <button class="city-btn" data-city="sf">SF</button>
+        <button class="city-btn" data-city="oakland">Oakland</button>
+        <button class="city-btn" data-city="berkeley">Berkeley</button>
+      </div>
+
+      <div class="control-label">Map Layers</div>
+      <button id="tractToggle">Tracts Layer On</button>
+      <button id="underservedToggle">Highlight Actual Underserved</button>
+      <div class="control-note">Threshold = median AI (96,480)</div>
 
       <div class="control-label">Color tracts by:</div>
       <select id="layerSelect">
-        <optgroup label="Accessibility">
-          <option value="accessibility">Accessibility Index</option>
-          <option value="underserved">Underserved Classification</option>
+        <optgroup label="── Actual Data ──">
+          <option value="accessibility">Accessibility Index (Actual)</option>
+          <option value="underserved">Underserved Areas (Actual)</option>
         </optgroup>
         <optgroup label="Race &amp; Ethnicity">
           <option value="pct_poc">% People of Color</option>
@@ -36,13 +46,72 @@
           <option value="median_home_value">Median Home Value</option>
           <option value="pop_density">Population Density</option>
         </optgroup>
+        <optgroup label="Age">
+          <option value="group_0_17">Age 0–17</option>
+          <option value="group_18_34">Age 18–34</option>
+          <option value="group_35_49">Age 35–49</option>
+          <option value="group_50_up">Age 50+</option>
+        </optgroup>
+        <optgroup label="Education">
+          <option value="below_high_school">Below High School</option>
+          <option value="high_school_grad">High School Graduates</option>
+          <option value="some_college_assoc">Some College / Associate's</option>
+          <option value="bachelors_plus">Bachelor's Degree or Higher</option>
+        </optgroup>
+        <optgroup label="Housing">
+          <option value="housing_units_total">Total Housing Units</option>
+          <option value="owner_occupied">Owner-Occupied Units</option>
+          <option value="renter_occupied">Renter-Occupied Units</option>
+        </optgroup>
       </select>
+    </div>
 
-      <div class="control-label">Jump to city:</div>
-      <div id="cityButtons">
-        <button class="city-btn" data-city="sf">SF</button>
-        <button class="city-btn" data-city="oakland">Oakland</button>
-        <button class="city-btn" data-city="berkeley">Berkeley</button>
+    <!-- ML Panel — right side -->
+    <div id="ml-panel">
+      <div class="ml-panel-title">Predict Accessibility</div>
+      <div class="ml-param-scroll">
+        <div class="ml-group-label">Socioeconomic</div>
+        <label class="ml-check"><input type="checkbox" value="median_income"> Median Income</label>
+        <label class="ml-check"><input type="checkbox" value="median_home_value"> Median Home Value</label>
+        <label class="ml-check"><input type="checkbox" value="homeownership_rate"> Homeownership Rate</label>
+        <label class="ml-check"><input type="checkbox" value="pop_density"> Pop. Density</label>
+        <div class="ml-group-label">Race &amp; Ethnicity</div>
+        <label class="ml-check"><input type="checkbox" value="pct_poc"> % People of Color</label>
+        <label class="ml-check"><input type="checkbox" value="pct_white_nh"> % White (NH)</label>
+        <label class="ml-check"><input type="checkbox" value="pct_black_nh"> % Black (NH)</label>
+        <label class="ml-check"><input type="checkbox" value="pct_asian_nh"> % Asian (NH)</label>
+        <label class="ml-check"><input type="checkbox" value="pct_hispanic"> % Hispanic</label>
+        <div class="ml-group-label">Age</div>
+        <label class="ml-check"><input type="checkbox" value="group_0_17"> Age 0–17</label>
+        <label class="ml-check"><input type="checkbox" value="group_18_34"> Age 18–34</label>
+        <label class="ml-check"><input type="checkbox" value="group_35_49"> Age 35–49</label>
+        <label class="ml-check"><input type="checkbox" value="group_50_up"> Age 50+</label>
+        <div class="ml-group-label">Education</div>
+        <label class="ml-check"><input type="checkbox" value="below_high_school"> Below High School</label>
+        <label class="ml-check"><input type="checkbox" value="high_school_grad"> HS Grad</label>
+        <label class="ml-check"><input type="checkbox" value="some_college_assoc"> Some College / Assoc.</label>
+        <label class="ml-check"><input type="checkbox" value="bachelors_plus"> Bachelor's+</label>
+        <div class="ml-group-label">Housing</div>
+        <label class="ml-check"><input type="checkbox" value="housing_units_total"> Housing Units</label>
+        <label class="ml-check"><input type="checkbox" value="owner_occupied"> Owner Occupied</label>
+        <label class="ml-check"><input type="checkbox" value="renter_occupied"> Renter Occupied</label>
+        <label class="ml-check"><input type="checkbox" value="area_sq_miles"> Area (sq mi)</label>
+      </div>
+      <div class="ml-actions">
+        <button id="mlSelectAll">Select All</button>
+        <button id="mlClearAll">Clear</button>
+      </div>
+      <button id="mlRunBtn">GO</button>
+      <button id="mlResetBtn" class="hidden">Reset Map</button>
+      <div id="ml-results" class="hidden">
+        <div class="ml-result-row"><span class="ml-result-label">R²</span><span id="ml-r2">—</span></div>
+        <div class="ml-result-row"><span class="ml-result-label">RMSE</span><span id="ml-rmse">—</span></div>
+        <div id="ml-status"></div>
+        <div class="ml-view-label">ML Predicted View:</div>
+        <div class="ml-view-toggle">
+          <button id="mlViewGradient" class="ml-view-btn active">Gradient</button>
+          <button id="mlViewUnderserved" class="ml-view-btn">Underserved</button>
+        </div>
       </div>
     </div>
 
