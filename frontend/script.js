@@ -75,9 +75,6 @@ document.getElementById("panel-close").addEventListener("click", hidePanel);
 
 // ─── Panel HTML builders ──────────────────────────────────────────────────────
 function buildAreaHTML(props) {
-  console.log("Clicked GEOID:", props.GEOID);
-  console.log("Prediction:", mlPredictions[String(props.GEOID)]);
-
   const geoid = props.GEOID ? String(props.GEOID) : null;
   const mlData = geoid && mlPredictions[geoid] ? mlPredictions[geoid] : null;
 
@@ -375,7 +372,7 @@ map.on("load", () => {
   // ── Accessibility Index tracts ──────────────────────────────────────────────
   map.addSource("bay-ai", {
     type: "geojson",
-    data: "old_data/tract_data_0331.geojson",
+    data: "Data/tract_data_0331.geojson",
     generateId: true
   });
 
@@ -552,7 +549,7 @@ map.on("load", () => {
     document.getElementById("rmseValue").textContent = "RMSE: running...";
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/run-model", {
+      const response = await fetch(`${API_BASE_URL}/run-model`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -583,9 +580,6 @@ map.on("load", () => {
           access_label: row.access_label
         };
       });
-
-      console.log("ML result:", result);
-      console.log("mlPredictions:", mlPredictions);
 
     } catch (err) {
       console.error(err);
