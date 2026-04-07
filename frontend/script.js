@@ -448,7 +448,7 @@ map.on("load", () => {
   });
 
   // ── Berkeley ────────────────────────────────────────────────────────────────
-  map.addSource("berkeley", { type: "geojson", data: "data/Berkeley1.geojson", generateId: true });
+  map.addSource("berkeley", { type: "geojson", data: "Data/Berkeley1.geojson", generateId: true });
   map.addLayer({
     id: "berkeley-layer", type: "circle", source: "berkeley",
     paint: { "circle-radius": 6, "circle-color": "#3b82f6", "circle-opacity": 0.85,
@@ -456,7 +456,7 @@ map.on("load", () => {
   });
 
   // ── Oakland ─────────────────────────────────────────────────────────────────
-  map.addSource("oakland", { type: "geojson", data: "data/Oakland1.geojson", generateId: true });
+  map.addSource("oakland", { type: "geojson", data: "Data/Oakland1.geojson", generateId: true });
   map.addLayer({
     id: "oakland-layer", type: "circle", source: "oakland",
     paint: { "circle-radius": 6, "circle-color": "#33a02c", "circle-opacity": 0.85,
@@ -464,7 +464,7 @@ map.on("load", () => {
   });
 
   // ── San Francisco ───────────────────────────────────────────────────────────
-  map.addSource("sf", { type: "geojson", data: "data/SF1.geojson", generateId: true });
+  map.addSource("sf", { type: "geojson", data: "Data/SF1.geojson", generateId: true });
   map.addLayer({
     id: "sf-layer", type: "circle", source: "sf",
     paint: { "circle-radius": 6, "circle-color": "#e31a1c", "circle-opacity": 0.85,
