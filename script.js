@@ -151,6 +151,85 @@ const layerConfigs = {
       { color: "#27ae60", label: "Well Served" }
     ]
   },
+
+  below_high_school: {
+    label: "Below High School",
+    field: "below_high_school_y",
+    type: "continuous",
+    stops: [0, "#f7fbff", 500, "#6baed6", 2000, "#08306b"],
+  },
+  
+  high_school_grad: {
+    label: "High School Graduates",
+    field: "high_school_grad_y",
+    type: "continuous",
+    stops: [0, "#f7fbff", 500, "#6baed6", 2000, "#08306b"],
+  },
+  
+  some_college: {
+    label: "Some College / Associate's",
+    field: "some_college_assoc_y",
+    type: "continuous",
+    stops: [0, "#f7fbff", 500, "#6baed6", 2000, "#08306b"],
+  },
+  
+  bachelors_plus: {
+    label: "Bachelor's Degree or Higher",
+    field: "bachelors_plus_y",
+    type: "continuous",
+    stops: [0, "#f7fbff", 500, "#6baed6", 2000, "#08306b"],
+  },
+
+  age_0_17: {
+    label: "Age 0–17",
+    field: "group_0_17_y",
+    type: "continuous",
+    stops: [0, "#fff5f0", 500, "#fb6a4a", 2000, "#67000d"],
+  },
+  
+  age_18_34: {
+    label: "Age 18–34",
+    field: "group_18_34_y",
+    type: "continuous",
+    stops: [0, "#fff5f0", 500, "#fb6a4a", 2000, "#67000d"],
+  },
+  
+  age_35_49: {
+    label: "Age 35–49",
+    field: "group_35_49_y",
+    type: "continuous",
+    stops: [0, "#fff5f0", 500, "#fb6a4a", 2000, "#67000d"],
+  },
+  
+  age_50_up: {
+    label: "Age 50+",
+    field: "group_50_up_y",
+    type: "continuous",
+    stops: [0, "#fff5f0", 500, "#fb6a4a", 2000, "#67000d"],
+  },
+
+  total_housing: {
+    label: "Total Housing Units",
+    field: "housing_units_total",
+    type: "continuous",
+    stops: [0, "#f7fcf5", 500, "#74c476", 2000, "#00441b"],
+  },
+  
+  owner_occupied: {
+    label: "Owner-Occupied Units",
+    field: "owner_occupied",
+    type: "continuous",
+    stops: [0, "#f7fcf5", 500, "#74c476", 2000, "#00441b"],
+  },
+  
+  renter_occupied: {
+    label: "Renter-Occupied Units",
+    field: "renter_occupied",
+    type: "continuous",
+    stops: [0, "#f7fcf5", 500, "#74c476", 2000, "#00441b"],
+  },
+
+  
   pct_poc: {
     label: "% People of Color",
     field: pf + "pct_poc",
@@ -222,7 +301,8 @@ const layerConfigs = {
     stops: [0, "#ffffcc", 10000, "#fed976", 30000, "#feb24c", 60000, "#fd8d3c", 100000, "#e31a1c", 190000, "#800026"],
     legendLabels: ["0", "10k", "30k", "60k", "100k", "190k+"],
     legendColors: ["#ffffcc", "#fed976", "#feb24c", "#fd8d3c", "#e31a1c", "#800026"]
-  }
+  },
+  
 };
 
 function buildColorExpression(config) {
@@ -298,12 +378,16 @@ function addHover(sourceId, layerId) {
 // ─── Map load ─────────────────────────────────────────────────────────────────
 map.on("load", () => {
 
+  map.on("click", "bay-ai-fill", (e) => {
+    console.log(e.features[0].properties);
+  });
+
   // ── Accessibility Index tracts ──────────────────────────────────────────────
   map.addSource("bay-ai", {
     type: "geojson",
-    data: "data/bay_AI_geo.geojson",
+    data: "data/tracts_merged.geojson",
     generateId: true
-  });
+  }); 
 
   map.addLayer({
     id: "bay-ai-fill",
@@ -373,6 +457,9 @@ map.on("load", () => {
   map.on("click", "bay-ai-fill", (e) => {
     const feature = e.features && e.features[0];
     if (!feature) return;
+
+  console.log(e.features[0].properties); 
+
     showPanel(buildAreaHTML(feature.properties || {}));
   });
 
