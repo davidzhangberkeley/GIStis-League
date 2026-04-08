@@ -11,7 +11,7 @@ from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
 
 #%%
-df = pd.read_csv('../Data/cleaned_dataset.csv')
+df = pd.read_csv('C:/Users/alexa/OneDrive/Desktop/gistis/GIStis-League/old_data/data_set_gis_0331.csv')
 df.columns = df.columns.str.strip()
 df = df.dropna()
 
