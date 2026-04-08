@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Grocery Accessibility — Bay Area</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet" />
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <h1>Accessibility Indices of the Bay</h1>
+
+    <div id="controls">
+      <button id="tractToggle">Tracts Data Layer On</button>
+      <button id="resetView">Back To Bay</button>
+      <button id="underservedToggle">Show Underserved Areas</button>
+
+      <div class="control-label">Color tracts by:</div>
+      <select id="layerSelect">
+
+        <optgroup label="Accessibility">
+          <option value="accessibility">Accessibility Index</option>
+          <option value="underserved">Underserved Classification</option>
+        </optgroup>
+        <optgroup label="Race &amp; Ethnicity">
+          <option value="pct_poc">% People of Color</option>
+          <option value="pct_white_nh">% White (Non-Hispanic)</option>
+          <option value="pct_black_nh">% Black (Non-Hispanic)</option>
+          <option value="pct_asian_nh">% Asian (Non-Hispanic)</option>
+          <option value="pct_hispanic">% Hispanic</option>
+        </optgroup>
+        <optgroup label="Socioeconomic">
+          <option value="median_income">Median Income</option>
+          <option value="homeownership">Homeownership Rate</option>
+          <option value="median_home_value">Median Home Value</option>
+          <option value="pop_density">Population Density</option>
+        </optgroup>
+      </select>
+
+      <div class="control-label">Jump to city:</div>
+      <div id="cityButtons">
+        <button class="city-btn" data-city="sf">SF</button>
+        <button class="city-btn" data-city="oakland">Oakland</button>
+        <button class="city-btn" data-city="berkeley">Berkeley</button>
+      </div>
+
+      <div class="control-label">Machine learning</div>
+      <button id="runModel">Run ML Model</button>
+
+      <div id="mlMetrics">
+        <div id="r2Value">R²: --</div>
+        <div id="rmseValue">RMSE: --</div>
+      </div>
+
+      <div class="control-label">ML preset</div>
+      <select id="mlPreset">
+        <option value="">Custom selection</option>
+        <option value="demographics">Demographics only</option>
+        <option value="socioeconomic">Socioeconomic only</option>
+        <option value="housing">Housing only</option>
+        <option value="all">All variables</option>
+      </select>
+
+      <div class="control-label">ML parameters</div>
+      <div id="featureList">
+        <label><input type="checkbox" class="ml-feature" value="pct_poc"> % People of Color</label>
+        <label><input type="checkbox" class="ml-feature" value="pct_white_nh"> % White (NH)</label>
+        <label><input type="checkbox" class="ml-feature" value="pct_black_nh"> % Black (NH)</label>
+        <label><input type="checkbox" class="ml-feature" value="pct_asian_nh"> % Asian (NH)</label>
+        <label><input type="checkbox" class="ml-feature" value="pct_hispanic"> % Hispanic</label>
+        <label><input type="checkbox" class="ml-feature" value="median_income"> Median Income</label>
+        <label><input type="checkbox" class="ml-feature" value="median_home_value"> Median Home Value</label>
+        <label><input type="checkbox" class="ml-feature" value="homeownership_rate"> Homeownership Rate</label>
+        <label><input type="checkbox" class="ml-feature" value="pop_density"> Population Density</label>
+        <label><input type="checkbox" class="ml-feature" value="total_pop"> Total Population</label>
+        <label><input type="checkbox" class="ml-feature" value="white_nh"> White NH</label>
+        <label><input type="checkbox" class="ml-feature" value="black_nh"> Black NH</label>
+        <label><input type="checkbox" class="ml-feature" value="asian_nh"> Asian NH</label>
+        <label><input type="checkbox" class="ml-feature" value="hispanic"> Hispanic</label>
+        <label><input type="checkbox" class="ml-feature" value="housing_units_total"> Housing Units</label>
+        <label><input type="checkbox" class="ml-feature" value="owner_occupied"> Owner Occupied</label>
+        <label><input type="checkbox" class="ml-feature" value="renter_occupied"> Renter Occupied</label>
+        <label><input type="checkbox" class="ml-feature" value="area_sq_miles"> Area (sq miles)</label>
+        <label><input type="checkbox" class="ml-feature" value="group_0_17"> Age 0–17</label>
+        <label><input type="checkbox" class="ml-feature" value="group_18_34"> Age 18–34</label>
+        <label><input type="checkbox" class="ml-feature" value="group_35_49"> Age 35–49</label>
+        <label><input type="checkbox" class="ml-feature" value="group_50_up"> Age 50+</label>
+        <label><input type="checkbox" class="ml-feature" value="below_high_school"> Below High School</label>
+        <label><input type="checkbox" class="ml-feature" value="high_school_grad"> High School Grad</label>
+        <label><input type="checkbox" class="ml-feature" value="some_college_assoc"> Some College / Assoc</label>
+        <label><input type="checkbox" class="ml-feature" value="bachelors_plus"> Bachelors+</label>
+      </div>
+    </div>
+
+    <div id="legend">
+      <div class="legend-title" id="legend-title">Accessibility Index</div>
+      <div id="legend-items"></div>
+      <div class="legend-divider"></div>
+      <div class="legend-title">Grocery Stores</div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#3b82f6"></div>
+        <span class="legend-label">Berkeley</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#33a02c"></div>
+        <span class="legend-label">Oakland</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#e31a1c"></div>
+        <span class="legend-label">San Francisco</span>
+      </div>
+    </div>
+
+    <div id="info-panel" class="hidden">
+      <button id="panel-close">✕</button>
+      <div id="panel-content"></div>
+    </div>
+
+    <div id="map"></div>
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

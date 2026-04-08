@@ -119,7 +119,8 @@ h1 {
 #legend {
   position: absolute;
   bottom: 36px;
-  left: 20px;
+  right: 20px;
+  left: auto;
   z-index: 1000;
   background: rgba(255, 255, 255, 0.92);
   padding: 10px 12px;
@@ -297,4 +298,48 @@ h1 {
 .badge-over {
   background: #e8f5e9;
   color: #27ae60;
+}
+
+/* ── ML panel ─────────────────────────────────────────────────────────────── */
+#mlMetrics {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(60, 60, 60, 0.15);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #2f3a3f;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#mlMetrics div + div {
+  margin-top: 4px;
+}
+
+#mlPreset {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(60,60,60,0.15);
+  background: rgba(255,255,255,0.95);
+  font-size: 13px;
+}
+
+#featureList {
+  max-height: 160px;
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(60, 60, 60, 0.15);
+  border-radius: 8px;
+  padding: 8px 10px;
+  box-sizing: border-box;
+}
+
+#featureList label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #333;
+  margin: 6px 0;
 }
