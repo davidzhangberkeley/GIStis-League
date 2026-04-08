@@ -36,6 +36,9 @@ document.getElementById("panel-close").addEventListener("click", hidePanel);
 
 // ─── Panel HTML builders ──────────────────────────────────────────────────────
 function buildAreaHTML(props) {
+  const predictedAccessibility = props.predicted_accessibility ?? null;
+  const serviceGap = props.service_gap ?? null;
+  const signedNum = (v) => v !== null && v !== "" ? Number(v).toLocaleString(undefined, { maximumFractionDigits: 0 }) : "";
   const ai    = props[" Accessibility_Index"] ?? props.Accessibility_Index ?? null;
   const aiNum = parseFloat(ai);
   const tract  = props.NAMELSAD ?? props.GEOID ?? "Unknown area";
@@ -72,6 +75,13 @@ function buildAreaHTML(props) {
     <div class="panel-section-label">Accessibility</div>
     <div class="panel-row"><span class="panel-key">Index</span><span>${isNaN(aiNum) ? "N/A" : aiNum.toLocaleString()}</span></div>
     <div class="panel-row panel-badge-row">${badge}</div>
+
+    ${predictedAccessibility !== null || serviceGap !== null ? `
+    <div class="panel-divider"></div>
+    <div class="panel-section-label">Model Results</div>
+    ${predictedAccessibility !== null ? `<div class="panel-row"><span class="panel-key">Predicted Accessibility</span><span>${Number(predictedAccessibility).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span></div>` : ""}
+    ${serviceGap !== null ? `<div class="panel-row"><span class="panel-key">Service Gap</span><span>${signedNum(serviceGap)}</span></div>` : ""}
+    ` : ""}
 
     ${medianIncome || medianHome || homeownership ? `
     <div class="panel-divider"></div>
@@ -115,6 +125,68 @@ function buildStoreHTML(props) {
     ${sales     ? `<div class="panel-row"><span class="panel-key">Sales Volume</span><span>${sales}</span></div>` : ""}
   `;
 }
+function getSelectedFeatures() {
+    return Array.from(document.querySelectorAll('.feature-checkbox:checked')).map((checkbox) => checkbox.value)
+}
+
+async function runModel(){
+    const selectedFeatures = getSelectedFeatures();
+
+    if(!selectedFeatures.length) {
+        alert("Please select at least one feature.");
+        return;
+    }
+    try {
+        const response = await fetch("http://127.0.0.1:5000/api/run-model", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                features: selectedFeatures
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(data.error || "Model run failed.");
+            return;
+        }
+
+        document.getElementById('r2Value').textContent = data.metrics.r2.toFixed(3);
+        document.getElementById('rmseValue').textContent = data.metrics.rmse.toFixed(2);
+
+        console.log(data);
+        updateMapWithModelResults(data.tract_scores);
+    } catch (error) {
+        console.error(error);
+        alert("Could not connect to the backend.");
+    }
+}
+async function updateMapWithModelResults(tractScores) {
+  const source = map.getSource("bay-ai");
+  if (!source) return;
+
+  const response = await fetch("data/bay_AI_geo.geojson");
+  const geojson = await response.json();
+
+  const scoreLookup = new Map(
+    tractScores.map((row) => [String(row.GEOID), row])
+  );
+
+  geojson.features.forEach((feature) => {
+    const geoid = String(feature.properties.GEOID);
+    const match = scoreLookup.get(geoid);
+
+    if (match) {
+      feature.properties.predicted_accessibility = match.predicted_accessibility;
+      feature.properties.service_gap = match.service_gap;
+    }
+  });
+
+  source.setData(geojson);
+}
 
 // ─── Layer configs ────────────────────────────────────────────────────────────
 const pf = "acs_2024_tracts_berkeley_oakland_sf_density_";
@@ -150,6 +222,20 @@ const layerConfigs = {
       { color: "#e74c3c", label: `Underserved (AI < ${UNDERSERVED_THRESHOLD.toLocaleString()})` },
       { color: "#27ae60", label: "Well Served" }
     ]
+  },
+  service_gap: {
+    label: "Service Gap",
+    field: "service_gap",
+    type: "continuous",
+    stops: [
+      -100000, "#b2182b",
+      -50000, "#ef8a62",
+      0, "#f7f7f7",
+      50000, "#67a9cf",
+      100000, "#2166ac"
+    ],
+    legendLabels: ["Underserved", "", "Balanced", "", "Overserved"],
+    legendColors: ["#b2182b", "#ef8a62", "#f7f7f7", "#67a9cf", "#2166ac"]
   },
   pct_poc: {
     label: "% People of Color",
@@ -297,6 +383,8 @@ function addHover(sourceId, layerId) {
 
 // ─── Map load ─────────────────────────────────────────────────────────────────
 map.on("load", () => {
+
+    document.getElementById('runModelBtn').addEventListener('click', runModel);
 
   // ── Accessibility Index tracts ──────────────────────────────────────────────
   map.addSource("bay-ai", {

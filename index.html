@@ -13,6 +13,21 @@
     <h1>Accessibility Indices of the Bay</h1>
 
     <div id="controls">
+      <div id="ml-controls">
+        <div class="control-label">Choose model parameters:</div>
+
+        <label><input type="checkbox" class="feature-checkbox" value="acs_2024_tracts_berkeley_oakland_sf_density_median_income"> Median Income</label>
+        <label><input type="checkbox" class="feature-checkbox" value="acs_2024_tracts_berkeley_oakland_sf_density_homeownership_rate"> Homeownership Rate</label>
+        <label><input type="checkbox" class="feature-checkbox" value="acs_2024_tracts_berkeley_oakland_sf_density_pct_poc"> % People of Color</label>
+        <label><input type="checkbox" class="feature-checkbox" value="acs_2024_tracts_berkeley_oakland_sf_density_pop_density"> Population Density</label>
+
+        <button id="runModelBtn">GO</button>
+
+        <div id="model-results">
+          <div>R squared: <span id='r2Value'>-</span></div>
+          <div>RMSE: <span id='rmseValue'>-</span></div>
+        </div>
+      </div>      
       <button id="tractToggle">Tracts Data Layer On</button>
       <button id="resetView">Back To Bay</button>
       <button id="underservedToggle">Show Underserved Areas</button>
@@ -22,6 +37,7 @@
         <optgroup label="Accessibility">
           <option value="accessibility">Accessibility Index</option>
           <option value="underserved">Underserved Classification</option>
+          <option value="service_gap">Service Gap</option>
         </optgroup>
         <optgroup label="Race &amp; Ethnicity">
           <option value="pct_poc">% People of Color</option>
