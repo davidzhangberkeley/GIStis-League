@@ -1,6 +1,7 @@
 mapboxgl.accessToken = ALEX_MAPBOX_TOKEN;
 
 let mlPredictions = {};
+let tractGeoJson = null;
 
 const mlPresets = {
   demographics: [
@@ -19,7 +20,6 @@ const mlPresets = {
     "group_35_49",
     "group_50_up"
   ],
-
   socioeconomic: [
     "median_income",
     "below_high_school",
@@ -27,7 +27,6 @@ const mlPresets = {
     "some_college_assoc",
     "bachelors_plus"
   ],
-
   housing: [
     "median_home_value",
     "housing_units_total",
@@ -39,7 +38,7 @@ const mlPresets = {
   ]
 };
 
-const UNDERSERVED_THRESHOLD = 96480; // median Accessibility_Index across all tracts
+const UNDERSERVED_THRESHOLD = 96480;
 
 const map = new mapboxgl.Map({
   container: "map",
@@ -48,17 +47,15 @@ const map = new mapboxgl.Map({
   zoom: 11
 });
 
-// ─── City views ───────────────────────────────────────────────────────────────
 const cityViews = {
-  sf:       { center: [-122.4194, 37.7749], zoom: 12.4 },
-  oakland:  { center: [-122.2711, 37.8044], zoom: 12.6 },
+  sf: { center: [-122.4194, 37.7749], zoom: 12.4 },
+  oakland: { center: [-122.2711, 37.8044], zoom: 12.6 },
   berkeley: { center: [-122.2730, 37.8715], zoom: 13.2 }
 };
 
 const initialView = { center: [-122.2711, 37.8044], zoom: 11 };
 
-// ─── Info Panel ───────────────────────────────────────────────────────────────
-const infoPanel   = document.getElementById("info-panel");
+const infoPanel = document.getElementById("info-panel");
 const panelContent = document.getElementById("panel-content");
 
 function showPanel(html) {
@@ -73,38 +70,30 @@ function hidePanel() {
 
 document.getElementById("panel-close").addEventListener("click", hidePanel);
 
-// ─── Panel HTML builders ──────────────────────────────────────────────────────
 function buildAreaHTML(props) {
-<<<<<<< HEAD:script.js
-  const predictedAccessibility = props.predicted_accessibility ?? null;
-  const serviceGap = props.service_gap ?? null;
-  const signedNum = (v) => v !== null && v !== "" ? Number(v).toLocaleString(undefined, { maximumFractionDigits: 0 }) : "";
-  const ai    = props[" Accessibility_Index"] ?? props.Accessibility_Index ?? null;
-=======
   const geoid = props.GEOID ? String(props.GEOID) : null;
-  const mlData = geoid && mlPredictions[geoid] ? mlPredictions[geoid] : null;
+  const mlData = geoid ? mlPredictions[geoid] : null;
 
   const predictedAi = mlData ? mlData.predicted_accessibility : null;
   const residual = mlData ? mlData.residual : null;
   const pctDiff = mlData ? mlData.pct_diff : null;
   const accessLabel = mlData ? mlData.access_label : null;
 
-  const ai    = props["Accessibility_Index"] ?? props.Accessibility_Index ?? null;
->>>>>>> b2196e0ac5753c49b28a15cbcd3122e5c6828a33:frontend/script.js
+  const ai = props.Accessibility_Index ?? null;
   const aiNum = parseFloat(ai);
-  const tract  = props.NAMELSAD ?? props.GEOID ?? "Unknown area";
-  const city   = props.CDTFA_CITY ?? props.CENSUS_PLA ?? "";
+  const tract = props.NAMELSAD ?? props.GEOID ?? "Unknown area";
+  const city = props.CDTFA_CITY ?? props.CENSUS_PLA ?? "";
   const county = props.CDTFA_COUN ?? props.COUNTYFP ?? "";
 
-  const popDensity    = props["pop_density"] ?? "";
-  const medianIncome  = props["median_income"] ?? "";
-  const pctPoc        = props["pct_poc"] ?? "";
-  const homeownership = props["homeownership_rate"] ?? "";
-  const medianHome    = props["median_home_value"] ?? "";
-  const pctWhite      = props["pct_white_nh"] ?? "";
-  const pctBlack      = props["pct_black_nh"] ?? "";
-  const pctAsian      = props["pct_asian_nh"] ?? "";
-  const pctHispanic   = props["pct_hispanic"] ?? "";
+  const popDensity = props.pop_density ?? "";
+  const medianIncome = props.median_income ?? "";
+  const pctPoc = props.pct_poc ?? "";
+  const homeownership = props.homeownership_rate ?? "";
+  const medianHome = props.median_home_value ?? "";
+  const pctWhite = props.pct_white_nh ?? "";
+  const pctBlack = props.pct_black_nh ?? "";
+  const pctAsian = props.pct_asian_nh ?? "";
+  const pctHispanic = props.pct_hispanic ?? "";
 
   const isUnderserved = !isNaN(aiNum) && aiNum < UNDERSERVED_THRESHOLD;
   const badge = !isNaN(aiNum)
@@ -117,177 +106,80 @@ function buildAreaHTML(props) {
   const dollar = (v) => v !== "" ? `$${Number(v).toLocaleString()}` : "";
   const num = (v) => v !== "" ? Number(v).toLocaleString() : "";
 
-<<<<<<< HEAD:script.js
+  let labelColor = "#666";
+  if (pctDiff !== null) {
+    if (pctDiff < -0.05) labelColor = "#d73027";
+    else if (pctDiff > 0.05) labelColor = "#1a9850";
+  }
+
   return `
     <div class="panel-title">${tract}</div>
-    ${city   ? `<div class="panel-meta">${city}${county ? `, ${county}` : ""}</div>` : ""}
+    ${city ? `<div class="panel-meta">${city}${county ? `, ${county}` : ""}</div>` : ""}
     <div class="panel-divider"></div>
 
     <div class="panel-section-label">Accessibility</div>
     <div class="panel-row"><span class="panel-key">Index</span><span>${isNaN(aiNum) ? "N/A" : aiNum.toLocaleString()}</span></div>
     <div class="panel-row panel-badge-row">${badge}</div>
 
-    ${predictedAccessibility !== null || serviceGap !== null ? `
+    ${mlData ? `
     <div class="panel-divider"></div>
     <div class="panel-section-label">Model Results</div>
-    ${predictedAccessibility !== null ? `<div class="panel-row"><span class="panel-key">Predicted Accessibility</span><span>${Number(predictedAccessibility).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span></div>` : ""}
-    ${serviceGap !== null ? `<div class="panel-row"><span class="panel-key">Service Gap</span><span>${signedNum(serviceGap)}</span></div>` : ""}
+    <div class="panel-row"><span class="panel-key">Predicted Index</span><span>${predictedAi === null ? "N/A" : Number(predictedAi).toFixed(1)}</span></div>
+    <div class="panel-row"><span class="panel-key">Residual</span><span>${residual === null ? "N/A" : Number(residual).toFixed(1)}</span></div>
+    <div class="panel-row"><span class="panel-key">% Difference</span><span>${pctDiff === null ? "N/A" : `${(pctDiff * 100).toFixed(1)}%`}</span></div>
+    <div class="panel-row"><span class="panel-key">Model Label</span><span style="color: ${labelColor}; font-weight: 600;">${accessLabel ?? "N/A"}</span></div>
     ` : ""}
 
     ${medianIncome || medianHome || homeownership ? `
     <div class="panel-divider"></div>
     <div class="panel-section-label">Socioeconomic</div>
-=======
-    let labelColor = "#666";
-    if (pctDiff !== null) {
-      if (pctDiff < -0.05) labelColor = "#d73027";
-      else if (pctDiff > 0.05) labelColor = "#1a9850";
-    }
-
-  return `
-    <div class="panel-title">${tract}</div>
-    ${city   ? `<div class="panel-meta">${city}${county ? `, ${county}` : ""}</div>` : ""}
-    <div class="panel-divider"></div>
-
-    <div class="panel-section-label">Accessibility</div>
-    <div class="panel-row">
-      <span class="panel-key">Index</span>
-      <span>${isNaN(aiNum) ? "N/A" : aiNum.toLocaleString()}</span>
-    </div>
-    <div class="panel-row">
-      <span class="panel-key">Predicted Index</span>
-      <span>${predictedAi === null ? "N/A" : Number(predictedAi).toFixed(1)}</span>
-    </div>
-    <div class="panel-row">
-      <span class="panel-key">Residual</span>
-      <span>${residual === null ? "N/A" : Number(residual).toFixed(1)}</span>
-    </div>
-    <div class="panel-row">
-      <span class="panel-key">% Difference</span>
-      <span>${pctDiff === null ? "N/A" : (pctDiff * 100).toFixed(1) + "%"}</span>
-    </div>
-    <div class="panel-row">
-      <span class="panel-key">Model Label</span>
-      <span style="color: ${labelColor}; font-weight: 600;">
-        ${accessLabel === null ? "N/A" : accessLabel}
-      </span>
-    </div>
-    <div class="panel-row panel-badge-row">${badge}</div>
-
-    ${medianIncome || medianHome || homeownership ? `
-    <div class="panel-divider"></div>
-    <div class="panel-section-label">Socioeconomic</div>
->>>>>>> b2196e0ac5753c49b28a15cbcd3122e5c6828a33:frontend/script.js
-    ${medianIncome  ? `<div class="panel-row"><span class="panel-key">Median Income</span><span>${dollar(medianIncome)}</span></div>` : ""}
-    ${medianHome    ? `<div class="panel-row"><span class="panel-key">Median Home Value</span><span>${dollar(medianHome)}</span></div>` : ""}
+    ${medianIncome ? `<div class="panel-row"><span class="panel-key">Median Income</span><span>${dollar(medianIncome)}</span></div>` : ""}
+    ${medianHome ? `<div class="panel-row"><span class="panel-key">Median Home Value</span><span>${dollar(medianHome)}</span></div>` : ""}
     ${homeownership ? `<div class="panel-row"><span class="panel-key">Homeownership</span><span>${pct(homeownership)}</span></div>` : ""}
-    ${popDensity    ? `<div class="panel-row"><span class="panel-key">Pop. Density</span><span>${num(popDensity)} / sq mi</span></div>` : ""}
+    ${popDensity ? `<div class="panel-row"><span class="panel-key">Pop. Density</span><span>${num(popDensity)} / sq mi</span></div>` : ""}
     ` : ""}
 
     ${pctPoc || pctWhite ? `
     <div class="panel-divider"></div>
     <div class="panel-section-label">Race &amp; Ethnicity</div>
-    ${pctPoc      ? `<div class="panel-row"><span class="panel-key">% People of Color</span><span>${pct(pctPoc)}</span></div>` : ""}
-    ${pctWhite    ? `<div class="panel-row"><span class="panel-key">% White (NH)</span><span>${pct(pctWhite)}</span></div>` : ""}
-    ${pctBlack    ? `<div class="panel-row"><span class="panel-key">% Black (NH)</span><span>${pct(pctBlack)}</span></div>` : ""}
-    ${pctAsian    ? `<div class="panel-row"><span class="panel-key">% Asian (NH)</span><span>${pct(pctAsian)}</span></div>` : ""}
+    ${pctPoc ? `<div class="panel-row"><span class="panel-key">% People of Color</span><span>${pct(pctPoc)}</span></div>` : ""}
+    ${pctWhite ? `<div class="panel-row"><span class="panel-key">% White (NH)</span><span>${pct(pctWhite)}</span></div>` : ""}
+    ${pctBlack ? `<div class="panel-row"><span class="panel-key">% Black (NH)</span><span>${pct(pctBlack)}</span></div>` : ""}
+    ${pctAsian ? `<div class="panel-row"><span class="panel-key">% Asian (NH)</span><span>${pct(pctAsian)}</span></div>` : ""}
     ${pctHispanic ? `<div class="panel-row"><span class="panel-key">% Hispanic</span><span>${pct(pctHispanic)}</span></div>` : ""}
     ` : ""}
   `;
 }
 
 function buildStoreHTML(props) {
-  const name     = props.company_business_name ?? props.company_bu ?? "Unknown business";
-  const addr     = props.formatted_address ?? props.formatted_ ?? `${props.address ?? ""}${props.city ? ", " + props.city : ""}`;
+  const name = props.company_business_name ?? props.company_bu ?? "Unknown business";
+  const addr = props.formatted_address ?? props.formatted_ ?? `${props.address ?? ""}${props.city ? ", " + props.city : ""}`;
   const category = props.business_category ?? props.business_c ?? "";
   const industry = props.industry_description ?? props.industry_d ?? "";
   const employees = props.employee_count ?? props.employee_c ?? "";
-  const sqft     = props.square_footage ?? props.square_foo ?? "";
-  const sales    = props.sales_volume ?? props.sales_volu ?? "";
+  const sqft = props.square_footage ?? props.square_foo ?? "";
+  const sales = props.sales_volume ?? props.sales_volu ?? "";
 
   return `
     <div class="panel-title">${name}</div>
     ${addr ? `<div class="panel-meta">${addr}</div>` : ""}
     <div class="panel-divider"></div>
     <div class="panel-section-label">Business Info</div>
-    ${category  ? `<div class="panel-row"><span class="panel-key">Category</span><span>${category}</span></div>` : ""}
-    ${industry  ? `<div class="panel-row"><span class="panel-key">Industry</span><span>${industry}</span></div>` : ""}
+    ${category ? `<div class="panel-row"><span class="panel-key">Category</span><span>${category}</span></div>` : ""}
+    ${industry ? `<div class="panel-row"><span class="panel-key">Industry</span><span>${industry}</span></div>` : ""}
     ${employees ? `<div class="panel-row"><span class="panel-key">Employees</span><span>${employees}</span></div>` : ""}
-    ${sqft      ? `<div class="panel-row"><span class="panel-key">Sq Ft</span><span>${sqft}</span></div>` : ""}
-    ${sales     ? `<div class="panel-row"><span class="panel-key">Sales Volume</span><span>${sales}</span></div>` : ""}
+    ${sqft ? `<div class="panel-row"><span class="panel-key">Sq Ft</span><span>${sqft}</span></div>` : ""}
+    ${sales ? `<div class="panel-row"><span class="panel-key">Sales Volume</span><span>${sales}</span></div>` : ""}
   `;
 }
-function getSelectedFeatures() {
-    return Array.from(document.querySelectorAll('.feature-checkbox:checked')).map((checkbox) => checkbox.value)
-}
 
-async function runModel(){
-    const selectedFeatures = getSelectedFeatures();
-
-    if(!selectedFeatures.length) {
-        alert("Please select at least one feature.");
-        return;
-    }
-    try {
-        const response = await fetch("http://127.0.0.1:5000/api/run-model", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                features: selectedFeatures
-            })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            alert(data.error || "Model run failed.");
-            return;
-        }
-
-        document.getElementById('r2Value').textContent = data.metrics.r2.toFixed(3);
-        document.getElementById('rmseValue').textContent = data.metrics.rmse.toFixed(2);
-
-        console.log(data);
-        updateMapWithModelResults(data.tract_scores);
-    } catch (error) {
-        console.error(error);
-        alert("Could not connect to the backend.");
-    }
-}
-async function updateMapWithModelResults(tractScores) {
-  const source = map.getSource("bay-ai");
-  if (!source) return;
-
-  const response = await fetch("data/bay_AI_geo.geojson");
-  const geojson = await response.json();
-
-  const scoreLookup = new Map(
-    tractScores.map((row) => [String(row.GEOID), row])
-  );
-
-  geojson.features.forEach((feature) => {
-    const geoid = String(feature.properties.GEOID);
-    const match = scoreLookup.get(geoid);
-
-    if (match) {
-      feature.properties.predicted_accessibility = match.predicted_accessibility;
-      feature.properties.service_gap = match.service_gap;
-    }
-  });
-
-  source.setData(geojson);
-}
-
-// ─── Layer configs ────────────────────────────────────────────────────────────
 const layerConfigs = {
   accessibility: {
     label: "Accessibility Index",
     field: "Accessibility_Index",
     type: "continuous",
     stops: [0, "#7f0000", 20000, "#d7301f", 40000, "#fc8d59", 60000, "#fdbb84",
-            80000, "#fee8c8", 100000, "#d9f0a3", 140000, "#78c679", 180000, "#31a354", 220000, "#006837"],
+      80000, "#fee8c8", 100000, "#d9f0a3", 140000, "#78c679", 180000, "#31a354", 220000, "#006837"],
     legendLabels: ["0", "60k", "100k", "180k", "220k+"],
     legendColors: ["#7f0000", "#fdbb84", "#d9f0a3", "#31a354", "#006837"]
   },
@@ -313,19 +205,19 @@ const layerConfigs = {
       { color: "#27ae60", label: "Well Served" }
     ]
   },
-  service_gap: {
-    label: "Service Gap",
-    field: "service_gap",
+  residual: {
+    label: "Residual Gradient",
+    field: "residual",
     type: "continuous",
     stops: [
-      -100000, "#b2182b",
-      -50000, "#ef8a62",
-      0, "#f7f7f7",
-      50000, "#67a9cf",
-      100000, "#2166ac"
+      -500, "#b2182b",
+      -100, "#ef8a62",
+      0, "#ffffe5",
+      100, "#a6d96a",
+      500, "#1a9850"
     ],
-    legendLabels: ["Underserved", "", "Balanced", "", "Overserved"],
-    legendColors: ["#b2182b", "#ef8a62", "#f7f7f7", "#67a9cf", "#2166ac"]
+    legendLabels: ["Negative", "", "Zero", "", "Positive"],
+    legendColors: ["#b2182b", "#ef8a62", "#ffffe5", "#a6d96a", "#1a9850"]
   },
   pct_poc: {
     label: "% People of Color",
@@ -410,15 +302,15 @@ function buildColorExpression(config) {
   return expr;
 }
 
-// ─── Legend ───────────────────────────────────────────────────────────────────
 function updateLegend(key) {
   const config = layerConfigs[key];
   if (!config) return;
+
   document.getElementById("legend-title").textContent = config.label;
   const legendItems = document.getElementById("legend-items");
 
   if (config.type === "categorical") {
-    legendItems.innerHTML = config.legendItems.map(item => `
+    legendItems.innerHTML = config.legendItems.map((item) => `
       <div class="legend-item">
         <div class="legend-swatch" style="background:${item.color}"></div>
         <span class="legend-label">${item.label}</span>
@@ -438,7 +330,47 @@ function updateLegend(key) {
   }
 }
 
-// ─── Hover helper ─────────────────────────────────────────────────────────────
+function quantile(sortedValues, q) {
+  if (!sortedValues.length) return 0;
+  const index = (sortedValues.length - 1) * q;
+  const lower = Math.floor(index);
+  const upper = Math.ceil(index);
+
+  if (lower === upper) return sortedValues[lower];
+
+  const weight = index - lower;
+  return sortedValues[lower] * (1 - weight) + sortedValues[upper] * weight;
+}
+
+function updateResidualConfig(tractResults) {
+  const residuals = tractResults
+    .map((row) => Number(row.residual))
+    .filter((value) => Number.isFinite(value))
+    .sort((a, b) => a - b);
+
+  if (!residuals.length) return;
+
+  const p10 = quantile(residuals, 0.10);
+  const p50 = quantile(residuals, 0.50);
+  const p90 = quantile(residuals, 0.90);
+  const maxAbs = Math.max(Math.abs(p10), Math.abs(p90), 1);
+  const midAbs = Math.max(maxAbs / 2, 1);
+
+  layerConfigs.residual.stops = [
+    -maxAbs, "#b2182b",
+    -midAbs, "#ef8a62",
+    0, "#ffffe5",
+    midAbs, "#a6d96a",
+    maxAbs, "#1a9850"
+  ];
+
+  layerConfigs.residual.legendLabels = [
+    Math.round(-maxAbs).toLocaleString(),
+    Math.round(p50).toLocaleString(),
+    Math.round(maxAbs).toLocaleString()
+  ];
+}
+
 let hoveredId = null;
 
 function addHover(sourceId, layerId) {
@@ -471,15 +403,43 @@ function addHover(sourceId, layerId) {
   });
 }
 
-// ─── Map load ─────────────────────────────────────────────────────────────────
-map.on("load", () => {
+function applyMlResultsToMap(tractResults) {
+  const source = map.getSource("bay-ai");
+  if (!source || !tractGeoJson || !tractGeoJson.features) return;
 
-    document.getElementById('runModelBtn').addEventListener('click', runModel);
+  const updatedGeojson = structuredClone(tractGeoJson);
 
-  // ── Accessibility Index tracts ──────────────────────────────────────────────
+  tractResults.forEach((row) => {
+    mlPredictions[String(row.GEOID)] = {
+      predicted_accessibility: row.predicted_accessibility,
+      residual: row.residual,
+      pct_diff: row.pct_diff,
+      access_label: row.access_label
+    };
+  });
+
+  updatedGeojson.features.forEach((feature) => {
+    const geoid = String(feature.properties.GEOID);
+    const row = mlPredictions[geoid];
+    if (!row) return;
+
+    feature.properties.predicted_accessibility = row.predicted_accessibility;
+    feature.properties.residual = row.residual;
+    feature.properties.pct_diff = row.pct_diff;
+    feature.properties.access_label = row.access_label;
+  });
+
+  tractGeoJson = updatedGeojson;
+  source.setData(updatedGeojson);
+}
+
+map.on("load", async () => {
+  const tractResponse = await fetch("Data/tract_data_0331.geojson");
+  tractGeoJson = await tractResponse.json();
+
   map.addSource("bay-ai", {
     type: "geojson",
-    data: "Data/tract_data_0331.geojson",
+    data: tractGeoJson,
     generateId: true
   });
 
@@ -516,7 +476,6 @@ map.on("load", () => {
     filter: ["==", ["id"], -1]
   });
 
-  // Underserved border overlay (initially hidden)
   map.addLayer({
     id: "bay-ai-underserved",
     type: "line",
@@ -554,33 +513,33 @@ map.on("load", () => {
     showPanel(buildAreaHTML(feature.properties || {}));
   });
 
-  // ── Berkeley ────────────────────────────────────────────────────────────────
   map.addSource("berkeley", { type: "geojson", data: "Data/Berkeley1.geojson", generateId: true });
   map.addLayer({
-    id: "berkeley-layer", type: "circle", source: "berkeley",
-    paint: { "circle-radius": 6, "circle-color": "#3b82f6", "circle-opacity": 0.85,
-             "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff" }
+    id: "berkeley-layer",
+    type: "circle",
+    source: "berkeley",
+    paint: { "circle-radius": 6, "circle-color": "#3b82f6", "circle-opacity": 0.85, "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff" }
   });
 
-  // ── Oakland ─────────────────────────────────────────────────────────────────
   map.addSource("oakland", { type: "geojson", data: "Data/Oakland1.geojson", generateId: true });
   map.addLayer({
-    id: "oakland-layer", type: "circle", source: "oakland",
-    paint: { "circle-radius": 6, "circle-color": "#33a02c", "circle-opacity": 0.85,
-             "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff" }
+    id: "oakland-layer",
+    type: "circle",
+    source: "oakland",
+    paint: { "circle-radius": 6, "circle-color": "#33a02c", "circle-opacity": 0.85, "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff" }
   });
 
-  // ── San Francisco ───────────────────────────────────────────────────────────
   map.addSource("sf", { type: "geojson", data: "Data/SF1.geojson", generateId: true });
   map.addLayer({
-    id: "sf-layer", type: "circle", source: "sf",
-    paint: { "circle-radius": 6, "circle-color": "#e31a1c", "circle-opacity": 0.85,
-             "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff" }
+    id: "sf-layer",
+    type: "circle",
+    source: "sf",
+    paint: { "circle-radius": 6, "circle-color": "#e31a1c", "circle-opacity": 0.85, "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff" }
   });
 
   addHover("berkeley", "berkeley-layer");
-  addHover("oakland",  "oakland-layer");
-  addHover("sf",       "sf-layer");
+  addHover("oakland", "oakland-layer");
+  addHover("sf", "sf-layer");
 
   ["berkeley-layer", "oakland-layer", "sf-layer"].forEach((layerId) => {
     const cityKey = layerId.replace("-layer", "");
@@ -595,23 +554,20 @@ map.on("load", () => {
     map.on("mouseleave", layerId, () => { map.getCanvas().style.cursor = ""; });
   });
 
-  // ── Tract toggle ────────────────────────────────────────────────────────────
   const tractLayers = ["bay-ai-fill", "bay-ai-outline", "bay-ai-hover-tract"];
   const tractToggle = document.getElementById("tractToggle");
   tractToggle.addEventListener("click", () => {
     const visible = map.getLayoutProperty("bay-ai-fill", "visibility") !== "none";
     const next = visible ? "none" : "visible";
-    tractLayers.forEach(id => map.setLayoutProperty(id, "visibility", next));
+    tractLayers.forEach((id) => map.setLayoutProperty(id, "visibility", next));
     tractToggle.textContent = visible ? "Tracts Data Layer Off" : "Tracts Data Layer On";
   });
 
-  // ── Reset view ──────────────────────────────────────────────────────────────
   document.getElementById("resetView").addEventListener("click", () => {
     hidePanel();
     map.flyTo({ ...initialView, duration: 1400, essential: true });
   });
 
-  // ── Underserved toggle ──────────────────────────────────────────────────────
   const underservedToggle = document.getElementById("underservedToggle");
   underservedToggle.addEventListener("click", () => {
     const visible = map.getLayoutProperty("bay-ai-underserved", "visibility") !== "none";
@@ -621,7 +577,6 @@ map.on("load", () => {
     underservedToggle.textContent = visible ? "Show Underserved Areas" : "Hide Underserved Areas";
   });
 
-  // ── City buttons ────────────────────────────────────────────────────────────
   document.querySelectorAll(".city-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const view = cityViews[btn.dataset.city];
@@ -629,7 +584,6 @@ map.on("load", () => {
     });
   });
 
-  // ── Layer dropdown ──────────────────────────────────────────────────────────
   const layerSelect = document.getElementById("layerSelect");
   layerSelect.addEventListener("change", () => {
     const config = layerConfigs[layerSelect.value];
@@ -638,14 +592,10 @@ map.on("load", () => {
     updateLegend(layerSelect.value);
   });
 
-  // ── Init legend ─────────────────────────────────────────────────────────────
   updateLegend("accessibility");
 
-  // ── ML button (backend test) ──────────────────────────────────────────────
   document.getElementById("runModel").addEventListener("click", async () => {
-    const selectedFeatures = Array.from(
-      document.querySelectorAll(".ml-feature:checked")
-    ).map(el => el.value);
+    const selectedFeatures = Array.from(document.querySelectorAll(".ml-feature:checked")).map((el) => el.value);
 
     if (selectedFeatures.length === 0) {
       alert("Please select at least one parameter.");
@@ -658,12 +608,8 @@ map.on("load", () => {
     try {
       const response = await fetch(`${API_BASE_URL}/run-model`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          selected_features: selectedFeatures
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ selected_features: selectedFeatures })
       });
 
       const result = await response.json();
@@ -677,17 +623,14 @@ map.on("load", () => {
 
       document.getElementById("r2Value").textContent = `R²: ${result.r2}`;
       document.getElementById("rmseValue").textContent = `RMSE: ${result.rmse}`;
-
       mlPredictions = {};
-      result.tract_results.forEach(row => {
-        mlPredictions[String(row.GEOID)] = {
-          predicted_accessibility: row.predicted_accessibility,
-          residual: row.residual,
-          pct_diff: row.pct_diff,
-          access_label: row.access_label
-        };
-      });
+      updateResidualConfig(result.tract_results);
+      applyMlResultsToMap(result.tract_results);
 
+      if (layerSelect.value === "residual") {
+        map.setPaintProperty("bay-ai-fill", "fill-color", buildColorExpression(layerConfigs.residual));
+        updateLegend("residual");
+      }
     } catch (err) {
       console.error(err);
       alert("Could not connect to backend.");
@@ -695,28 +638,23 @@ map.on("load", () => {
       document.getElementById("rmseValue").textContent = "RMSE: --";
     }
   });
+
   document.getElementById("mlPreset").addEventListener("change", (e) => {
     const preset = e.target.value;
-
     const checkboxes = document.querySelectorAll(".ml-feature");
 
-    // If user selects "Custom selection"
     if (!preset) return;
 
-    // Select ALL variables
     if (preset === "all") {
-      checkboxes.forEach(cb => {
+      checkboxes.forEach((cb) => {
         cb.checked = true;
       });
       return;
     }
 
-    // Otherwise: apply specific preset
     const selectedSet = new Set(mlPresets[preset] || []);
-
-    checkboxes.forEach(cb => {
+    checkboxes.forEach((cb) => {
       cb.checked = selectedSet.has(cb.value);
     });
   });
 });
-
