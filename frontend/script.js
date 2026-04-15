@@ -76,6 +76,7 @@ function buildAreaHTML(props) {
 
   const predictedAi = mlData ? mlData.predicted_accessibility : null;
   const residual = mlData ? mlData.residual : null;
+  const sd = np.std(residual)
   const pctDiff = mlData ? mlData.pct_diff : null;
   const accessLabel = mlData ? mlData.access_label : null;
 
@@ -290,6 +291,70 @@ const layerConfigs = {
     stops: [0, "#ffffcc", 10000, "#fed976", 30000, "#feb24c", 60000, "#fd8d3c", 100000, "#e31a1c", 190000, "#800026"],
     legendLabels: ["0", "10k", "30k", "60k", "100k", "190k+"],
     legendColors: ["#ffffcc", "#fed976", "#feb24c", "#fd8d3c", "#e31a1c", "#800026"]
+  },
+  group_0_17: {
+    label: "Population Age 0–17",
+    field: "group_0_17",
+    type: "continuous",
+    stops: [0, "#f7fbff", 300, "#c6dbef", 700, "#6baed6", 1200, "#2171b5", 2000, "#08306b"],
+    legendLabels: ["0", "300", "700", "1,200", "2,000+"],
+    legendColors: ["#f7fbff", "#c6dbef", "#6baed6", "#2171b5", "#08306b"]
+  },
+  group_18_34: {
+    label: "Population Age 18–34",
+    field: "group_18_34",
+    type: "continuous",
+    stops: [0, "#f7fbff", 400, "#c6dbef", 900, "#6baed6", 1500, "#2171b5", 2500, "#08306b"],
+    legendLabels: ["0", "400", "900", "1,500", "2,500+"],
+    legendColors: ["#f7fbff", "#c6dbef", "#6baed6", "#2171b5", "#08306b"]
+  },
+  group_35_49: {
+    label: "Population Age 35–49",
+    field: "group_35_49",
+    type: "continuous",
+    stops: [0, "#f7fbff", 300, "#c6dbef", 700, "#6baed6", 1200, "#2171b5", 2000, "#08306b"],
+    legendLabels: ["0", "300", "700", "1,200", "2,000+"],
+    legendColors: ["#f7fbff", "#c6dbef", "#6baed6", "#2171b5", "#08306b"]
+  },
+  group_50_up: {
+    label: "Population Age 50+",
+    field: "group_50_up",
+    type: "continuous",
+    stops: [0, "#f7fbff", 500, "#c6dbef", 1000, "#6baed6", 1800, "#2171b5", 3000, "#08306b"],
+    legendLabels: ["0", "500", "1,000", "1,800", "3,000+"],
+    legendColors: ["#f7fbff", "#c6dbef", "#6baed6", "#2171b5", "#08306b"]
+  },
+  below_high_school: {
+    label: "Below High School",
+    field: "below_high_school",
+    type: "continuous",
+    stops: [0, "#fff5eb", 150, "#fdd0a2", 400, "#fd8d3c", 800, "#d94801", 1500, "#7f2704"],
+    legendLabels: ["0", "150", "400", "800", "1,500+"],
+    legendColors: ["#fff5eb", "#fdd0a2", "#fd8d3c", "#d94801", "#7f2704"]
+  },
+  high_school_grad: {
+    label: "High School Graduates",
+    field: "high_school_grad",
+    type: "continuous",
+    stops: [0, "#fff5eb", 150, "#fdd0a2", 350, "#fd8d3c", 700, "#d94801", 1200, "#7f2704"],
+    legendLabels: ["0", "150", "350", "700", "1,200+"],
+    legendColors: ["#fff5eb", "#fdd0a2", "#fd8d3c", "#d94801", "#7f2704"]
+  },
+  some_college_assoc: {
+    label: "Some College / Associate's",
+    field: "some_college_assoc",
+    type: "continuous",
+    stops: [0, "#fff5eb", 200, "#fdd0a2", 500, "#fd8d3c", 900, "#d94801", 1500, "#7f2704"],
+    legendLabels: ["0", "200", "500", "900", "1,500+"],
+    legendColors: ["#fff5eb", "#fdd0a2", "#fd8d3c", "#d94801", "#7f2704"]
+  },
+  bachelors_plus: {
+    label: "Bachelor's Degree or Higher",
+    field: "bachelors_plus",
+    type: "continuous",
+    stops: [0, "#f7fcf5", 400, "#c7e9c0", 900, "#74c476", 1600, "#238b45", 3000, "#00441b"],
+    legendLabels: ["0", "400", "900", "1,600", "3,000+"],
+    legendColors: ["#f7fcf5", "#c7e9c0", "#74c476", "#238b45", "#00441b"]
   }
 };
 
