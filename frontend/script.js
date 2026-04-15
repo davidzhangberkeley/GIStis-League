@@ -1,55 +1,5 @@
 mapboxgl.accessToken = ALEX_MAPBOX_TOKEN;
 
-<<<<<<< HEAD
-const map = new mapboxgl.Map({
-  container: "map",
-  style: "mapbox://styles/alo-97/cmm1jk21x004h01smffit3mja",
-  center: [-122.2711, 37.8044], // Centered roughly between SF, Oakland, Berkeley
-  zoom: 11
-});
-
-let hoveredId = null;
-
-let activePopups = [];
-
-const initialView = {
-  center: [-122.2711, 37.8044],
-  zoom: 11
-};
-
-function closeAllPopups() {
-  activePopups.forEach((popup) => popup.remove());
-  activePopups = [];
-}
-
-const cityViews = {
-  "sf-layer": {
-    center: [-122.4194, 37.7749],
-    zoom: 12.4
-  },
-  "oakland-layer": {
-    center: [-122.2711, 37.8044],
-    zoom: 12.6
-  },
-  "berkeley-layer": {
-    center: [-122.2730, 37.8715],
-    zoom: 13.2
-  }
-};
-
-function zoomToLayerCity(layerId) {
-  const view = cityViews[layerId];
-  if (!view) return;
-
-  map.flyTo({
-    center: view.center,
-    zoom: view.zoom,
-    duration: 1400,
-    essential: true
-  });
-}
-
-=======
 let mlPredictions = {};
 
 const mlPresets = {
@@ -302,7 +252,7 @@ const layerConfigs = {
     type: "continuous",
     stops: [0, "#f7fcfd", 0.25, "#b2e2e2", 0.5, "#66c2a4", 0.75, "#238b45", 1.0, "#00441b"],
     legendLabels: ["0%", "25%", "50%", "75%", "100%"],
-    legendColors: ["#f7fcfd", "#b2e2e2", "#66c2a4", "#238b45", "#00441b"]
+    legendColors: ["#f7fcfd", "#b2e2e2", "#64c7a6", "#238b45", "#00441b"]
   },
   pct_hispanic: {
     label: "% Hispanic",
@@ -343,6 +293,70 @@ const layerConfigs = {
     stops: [0, "#ffffcc", 10000, "#fed976", 30000, "#feb24c", 60000, "#fd8d3c", 100000, "#e31a1c", 190000, "#800026"],
     legendLabels: ["0", "10k", "30k", "60k", "100k", "190k+"],
     legendColors: ["#ffffcc", "#fed976", "#feb24c", "#fd8d3c", "#e31a1c", "#800026"]
+  },
+  group_0_17: {
+    label: "Population Age 0–17",
+    field: "group_0_17",
+    type: "continuous",
+    stops: [0, "#f7fbff", 300, "#c6dbef", 700, "#6baed6", 1200, "#2171b5", 2000, "#08306b"],
+    legendLabels: ["0", "300", "700", "1,200", "2,000+"],
+    legendColors: ["#f7fbff", "#c6dbef", "#6baed6", "#2171b5", "#08306b"]
+  },
+  group_18_34: {
+    label: "Population Age 18–34",
+    field: "group_18_34",
+    type: "continuous",
+    stops: [0, "#f7fbff", 400, "#c6dbef", 900, "#6baed6", 1500, "#2171b5", 2500, "#08306b"],
+    legendLabels: ["0", "400", "900", "1,500", "2,500+"],
+    legendColors: ["#f7fbff", "#c6dbef", "#6baed6", "#2171b5", "#08306b"]
+  },
+  group_35_49: {
+    label: "Population Age 35–49",
+    field: "group_35_49",
+    type: "continuous",
+    stops: [0, "#f7fbff", 300, "#c6dbef", 700, "#6baed6", 1200, "#2171b5", 2000, "#08306b"],
+    legendLabels: ["0", "300", "700", "1,200", "2,000+"],
+    legendColors: ["#f7fbff", "#c6dbef", "#6baed6", "#2171b5", "#08306b"]
+  },
+  group_50_up: {
+    label: "Population Age 50+",
+    field: "group_50_up",
+    type: "continuous",
+    stops: [0, "#f7fbff", 500, "#c6dbef", 1000, "#6baed6", 1800, "#2171b5", 3000, "#08306b"],
+    legendLabels: ["0", "500", "1,000", "1,800", "3,000+"],
+    legendColors: ["#f7fbff", "#c6dbef", "#6baed6", "#2171b5", "#08306b"]
+  },
+  below_high_school: {
+    label: "Below High School",
+    field: "below_high_school",
+    type: "continuous",
+    stops: [0, "#fff5eb", 150, "#fdd0a2", 400, "#fd8d3c", 800, "#d94801", 1500, "#7f2704"],
+    legendLabels: ["0", "150", "400", "800", "1,500+"],
+    legendColors: ["#fff5eb", "#fdd0a2", "#fd8d3c", "#d94801", "#7f2704"]
+  },
+  high_school_grad: {
+    label: "High School Graduates",
+    field: "high_school_grad",
+    type: "continuous",
+    stops: [0, "#fff5eb", 150, "#fdd0a2", 350, "#fd8d3c", 700, "#d94801", 1200, "#7f2704"],
+    legendLabels: ["0", "150", "350", "700", "1,200+"],
+    legendColors: ["#fff5eb", "#fdd0a2", "#fd8d3c", "#d94801", "#7f2704"]
+  },
+  some_college_assoc: {
+    label: "Some College / Associate's",
+    field: "some_college_assoc",
+    type: "continuous",
+    stops: [0, "#fff5eb", 200, "#fdd0a2", 500, "#fd8d3c", 900, "#d94801", 1500, "#7f2704"],
+    legendLabels: ["0", "200", "500", "900", "1,500+"],
+    legendColors: ["#fff5eb", "#fdd0a2", "#fd8d3c", "#d94801", "#7f2704"]
+  },
+  bachelors_plus: {
+    label: "Bachelor's Degree or Higher",
+    field: "bachelors_plus",
+    type: "continuous",
+    stops: [0, "#f7fcf5", 400, "#c7e9c0", 900, "#74c476", 1600, "#238b45", 3000, "#00441b"],
+    legendLabels: ["0", "400", "900", "1,600", "3,000+"],
+    legendColors: ["#f7fcf5", "#c7e9c0", "#74c476", "#238b45", "#00441b"]
   }
 };
 
@@ -386,7 +400,6 @@ function updateLegend(key) {
 // ─── Hover helper ─────────────────────────────────────────────────────────────
 let hoveredId = null;
 
->>>>>>> b2196e0ac5753c49b28a15cbcd3122e5c6828a33
 function addHover(sourceId, layerId) {
   map.addLayer({
     id: `${layerId}-hover`,
@@ -417,15 +430,6 @@ function addHover(sourceId, layerId) {
   });
 }
 
-<<<<<<< HEAD
-map.on("load", () => {
-  // ---------------------------------
-  // ACCESSIBLITY INDEX TRACTS
-  // ----------------------------------
-  map.addSource("bay-ai", {
-    type: "geojson",
-    data: "data/bay_AI_geo.geojson",
-=======
 // ─── Map load ─────────────────────────────────────────────────────────────────
 map.on("load", () => {
 
@@ -433,7 +437,6 @@ map.on("load", () => {
   map.addSource("bay-ai", {
     type: "geojson",
     data: "Data/tract_data_0331.geojson",
->>>>>>> b2196e0ac5753c49b28a15cbcd3122e5c6828a33
     generateId: true
   });
 
@@ -442,34 +445,6 @@ map.on("load", () => {
     type: "fill",
     source: "bay-ai",
     paint: {
-<<<<<<< HEAD
-      "fill-color": [
-      "interpolate",
-      ["linear"],
-      ["to-number", ["get", " Accessibility_Index"]],
-
-      0, "#7f0000",
-      20000, "#d7301f",
-      40000, "#fc8d59",
-      60000, "#fdbb84",
-      80000, "#fee8c8",
-      100000, "#d9f0a3",
-      140000, "#78c679",
-      180000, "#31a354",
-      220000, "#006837"
-    ],
-    "fill-opacity": [
-      "case",
-    [
-      "any",
-      ["==", ["to-string", ["get", " Accessibility_Index"]], "NaN"],
-      ["==", ["to-string", ["get", " Accessibility_Index"]], ""],
-      ["==", ["get", " Accessibility_Index"], null]
-    ],
-      0,
-      0.6
-]
-=======
       "fill-color": buildColorExpression(layerConfigs.accessibility),
       "fill-opacity": [
         "case",
@@ -480,7 +455,6 @@ map.on("load", () => {
         ],
         0, 0.6
       ]
->>>>>>> b2196e0ac5753c49b28a15cbcd3122e5c6828a33
     }
   });
 
@@ -488,26 +462,6 @@ map.on("load", () => {
     id: "bay-ai-outline",
     type: "line",
     source: "bay-ai",
-<<<<<<< HEAD
-    paint: {
-      "line-color": "#111111",
-      "line-width": 1.1,
-      "line-opacity": 0.7
-    }
-  });
-
-  map.addLayer({
-    id: "bay-ai-hover",
-    type: "line",
-    source: "bay-ai",
-    paint: {
-      "line-color": "#000000",
-      "line-width": 2.4
-    },
-    filter: ["==", ["id"], -1]
-  });
-
-=======
     paint: { "line-color": "#111111", "line-width": 1.1, "line-opacity": 0.7 }
   });
 
@@ -534,264 +488,20 @@ map.on("load", () => {
     layout: { visibility: "none" }
   });
 
->>>>>>> b2196e0ac5753c49b28a15cbcd3122e5c6828a33
   let hoveredAreaId = null;
 
   map.on("mousemove", "bay-ai-fill", (e) => {
     map.getCanvas().style.cursor = "pointer";
     if (!e.features || !e.features.length) return;
-<<<<<<< HEAD
-
-    const feature = e.features[0];
-    const id = feature.id;
-    if (id === undefined) return;
-
-    hoveredAreaId = id;
-    map.setFilter("bay-ai-hover", ["==", ["id"], hoveredAreaId]);
-=======
     const id = e.features[0].id;
     if (id === undefined) return;
     hoveredAreaId = id;
     map.setFilter("bay-ai-hover-tract", ["==", ["id"], hoveredAreaId]);
->>>>>>> b2196e0ac5753c49b28a15cbcd3122e5c6828a33
   });
 
   map.on("mouseleave", "bay-ai-fill", () => {
     map.getCanvas().style.cursor = "";
     hoveredAreaId = null;
-<<<<<<< HEAD
-    map.setFilter("bay-ai-hover", ["==", ["id"], -1]);
-  });
-
-  function areaPopupHTML(props) {
-  const ai =
-    props[" Accessibility_Index"] ??
-    props.Accessibility_Index ??
-    props.AI ??
-    props.ai ??
-    "N/A";
-
-  const tract =
-    props.NAMELSAD ??
-    props.GEOID ??
-    "Unknown area";
-
-  const city =
-    props.CDTFA_CITY ??
-    props.CENSUS_PLA ??
-    "";
-
-  const county =
-    props.CDTFA_COUN ??
-    props.COUNTYFP ??
-    "";
-
-  const popDensity =
-    props.acs_2024_tracts_berkeley_oakland_sf_density_pop_density ?? "";
-
-  const medianIncome =
-    props.acs_2024_tracts_berkeley_oakland_sf_density_median_income ??
-    props.median_hh_ ??
-    "";
-
-  return `
-    <div style="font-family: sans-serif; line-height: 1.35;">
-      <div style="font-size: 14px; font-weight: 700; margin-bottom: 6px;">
-        ${tract}
-      </div>
-      ${city ? `<div style="font-size: 12px; margin-bottom: 4px;"><b>City:</b> ${city}</div>` : ""}
-      ${county ? `<div style="font-size: 12px; margin-bottom: 4px;"><b>County:</b> ${county}</div>` : ""}
-      <div style="font-size: 12px; margin-bottom: 4px;"><b>Accessibility Index:</b> ${Number(ai).toLocaleString()}</div>
-      ${popDensity ? `<div style="font-size: 12px; margin-bottom: 4px;"><b>Population Density:</b> ${Number(popDensity).toLocaleString()}</div>` : ""}
-      ${medianIncome ? `<div style="font-size: 12px;"><b>Median Income:</b> $${Number(medianIncome).toLocaleString()}</div>` : ""}
-    </div>
-  `;
-  }
-
-  map.on("click", "bay-ai-fill", (e) => {
-    const feature = e.features && e.features[0];
-    if (!feature) return;
-
-    closeAllPopups();
-
-    const popup = new mapboxgl.Popup({ closeButton: true, closeOnClick: true })
-      .setLngLat(e.lngLat)
-      .setHTML(areaPopupHTML(feature.properties || {}))
-      .addTo(map);
-
-    activePopups.push(popup);
-  });
-
-  // --------------------
-  // Berkeley
-  // --------------------
-  map.addSource("berkeley", {
-    type: "geojson",
-    data: "data/Berkeley1.geojson",
-    generateId: true
-  });
-
-  map.addLayer({
-    id: "berkeley-layer",
-    type: "circle",
-    source: "berkeley",
-    paint: {
-      "circle-radius": 6,
-      "circle-color": "#3b82f6",
-      "circle-opacity": 0.85,
-      "circle-stroke-width": 1.5,
-      "circle-stroke-color": "#ffffff"
-    }
-  });
-
-  // --------------------
-  // Oakland
-  // --------------------
-  map.addSource("oakland", {
-    type: "geojson",
-    data: "data/Oakland1.geojson",
-    generateId: true
-  });
-
-  map.addLayer({
-    id: "oakland-layer",
-    type: "circle",
-    source: "oakland",
-    paint: {
-      "circle-radius": 6,
-      "circle-color": "#33a02c",
-      "circle-opacity": 0.85,
-      "circle-stroke-width": 1.5,
-      "circle-stroke-color": "#ffffff"
-    }
-  });
-
-  // --------------------
-  // San Francisco
-  // --------------------
-  map.addSource("sf", {
-    type: "geojson",
-    data: "data/SF1.geojson",
-    generateId: true
-  });
-
-  map.addLayer({
-    id: "sf-layer",
-    type: "circle",
-    source: "sf",
-    paint: {
-      "circle-radius": 6,
-      "circle-color": "#e31a1c",
-      "circle-opacity": 0.85,
-      "circle-stroke-width": 1.5,
-      "circle-stroke-color": "#ffffff"
-    }
-  });
-
-  addHover("berkeley", "berkeley-layer");
-  addHover("oakland", "oakland-layer");
-  addHover("sf", "sf-layer"); 
-
-  // Build popup HTML from your GeoJSON properties
-  // Build popup HTML from the NEW GeoJSON properties
-  function popupHTML(props) {
-    const name = (props.company_business_name || props.company_bu) ?? "Unknown business";
-    const addr = (props.formatted_address || props.formatted_) ?? `${props.address ?? ""}${props.city ? ", " + props.city : ""}`;
-    const category = (props.business_category || props.business_c) ?? "";
-    const industry = (props.industry_description|| props.industry_d) ?? "";
-    const employees = (props.employee_count || props.employee_c) ?? "";
-    const sqft = (props.square_footage || props.square_foo) ?? "";
-    const sales = (props.sales_volume || props.sales_volu) ?? "";
-
-    return `
-      <div style="font-family: sans-serif; line-height: 1.35;">
-        <div style="font-size: 14px; font-weight: 700; margin-bottom: 6px;">
-          ${name}
-        </div>
-
-        ${addr ? `<div style="font-size: 12px; margin-bottom: 6px;">${addr}</div>` : ""}
-
-        ${(category || industry || employees || sqft || sales)
-          ? `<hr style="margin:8px 0; border:none; border-top:1px solid #ddd;" />`
-          : ""}
-
-        ${category ? `<div style="font-size: 12px;"><b>Category:</b> ${category}</div>` : ""}
-        ${industry ? `<div style="font-size: 12px;"><b>Industry:</b> ${industry}</div>` : ""}
-        ${employees ? `<div style="font-size: 12px;"><b>Employees:</b> ${employees}</div>` : ""}
-        ${sqft ? `<div style="font-size: 12px;"><b>Sq Ft:</b> ${sqft}</div>` : ""}
-        ${sales ? `<div style="font-size: 12px;"><b>Sales Volume:</b> ${sales}</div>` : ""}
-      </div>
-    `;
-  }
-
-  // Enable click + hover behavior for all three layers
-  ["berkeley-layer", "oakland-layer", "sf-layer"].forEach((layerId) => {
-    console.log("clicked layer:", layerId);
-    map.on("click", layerId, (e) => {
-      const feature = e.features && e.features[0];
-      if (!feature) return;
-
-      const coords = feature.geometry.coordinates.slice();
-      const props = feature.properties || {};
-
-      while (Math.abs(e.lngLat.lng - coords[0]) > 180) {
-          coords[0] += e.lngLat.lng > coords[0] ? 360 : -360;
-      }
-
-      zoomToLayerCity(layerId);
-
-      closeAllPopups();
-
-      const popup = new mapboxgl.Popup({ closeButton: true, closeOnClick: true})
-        .setLngLat(coords)
-        .setHTML(popupHTML(props))
-        .addTo(map)
-      
-      activePopups.push(popup)
-    });
-
-    map.on("mouseenter", layerId, () => {
-      map.getCanvas().style.cursor = "pointer";
-    });
-
-    map.on("mouseleave", layerId, () => {
-      map.getCanvas().style.cursor = "";
-    });
-  });
-
-  const button = document.getElementById("tractToggle");
-
-  button.addEventListener("click", () => {
-    const visibility = map.getLayoutProperty("bay-ai-fill", "visibility");
-
-    if (visibility === "none") {
-      map.setLayoutProperty("bay-ai-fill", "visibility", "visible");
-      map.setLayoutProperty("bay-ai-outline", "visibility", "visible");
-      map.setLayoutProperty("bay-ai-hover", "visibility", "visible");
-      button.textContent = "Accessiblity Tracts On";
-    } else {
-      map.setLayoutProperty("bay-ai-fill", "visibility", "none");
-      map.setLayoutProperty("bay-ai-outline", "visibility", "none");
-      map.setLayoutProperty("bay-ai-hover", "visibility", "none");
-      button.textContent = "Accessiblity Tracts Off";
-    }
-  });
-
-  const resetButton = document.getElementById("resetView");
-
-  resetButton.addEventListener("click", () => {
-
-    closeAllPopups();
-    
-    map.flyTo({
-      center: initialView.center,
-      zoom: initialView.zoom,
-      duration: 1400,
-      essential: true
-    });
-  });
-});
-=======
     map.setFilter("bay-ai-hover-tract", ["==", ["id"], -1]);
   });
 
@@ -967,4 +677,3 @@ map.on("load", () => {
   });
 });
 
->>>>>>> b2196e0ac5753c49b28a15cbcd3122e5c6828a33

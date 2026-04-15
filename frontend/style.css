@@ -4,85 +4,7 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-<<<<<<< HEAD
-}
-
-h1 {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  z-index: 1000;
-  transform: translateX(-50%);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 30px;
-  color: rgb(79, 79, 79);
-}
-
-#tractToggle {
-  position: absolute;
-  top: 100px;
-  left: 20px;
-  z-index: 1000;
-
-  padding: 10px 14px;
-  border: 1px solid rgba(60, 60, 60, 0.15);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.9);
-  color: #2f3a3f;
-
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-  backdrop-filter: blur(4px);
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-}
-
-#tractToggle:hover {
-  background: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
-  transform: translateY(-1px);
-}
-
-#tractToggle:active {
-  transform: translateY(0);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
-}
-
-#resetView {
-  position: absolute;
-  top: 140px;
-  left: 20px;
-  z-index: 1000;
-
- padding: 10px 14px;
-  border: 1px solid rgba(60, 60, 60, 0.15);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.9);
-  color: #2f3a3f;
-
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-  backdrop-filter: blur(4px);
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-}
-
-#resetView:hover {
-  background: rgba(255, 255, 255, 1);
-  transform: translateY(-1px);
-}
-
-#resetView:active {
-  transform: scale(0.98);
-=======
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
->>>>>>> b2196e0ac5753c49b28a15cbcd3122e5c6828a33
 }
 
 #map {
@@ -90,77 +12,6 @@ h1 {
   inset: 0;
 }
 
-<<<<<<< HEAD
-#legend {
-  position: absolute;
-  bottom: 80px;
-  left: 10px;
-  z-index: 1000;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  font-family: "Quicksand", sans-serif;
-  font-size: 12px;
-  color: #333;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  max-width: 200px;
-}
-
-.legend-title {
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: #65210c; 
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  margin: 3px 0;
-}
-
-.legend-label {
-  margin-left: 6px;
-}
-
-
-.legend-circle {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: 2px solid #ffffff;
-  box-sizing: border-box;
-}
-
-.legend-start-end {
-  background-color: #872d11; /* Start and End */
-}
-
-.legend-main-stop {
-  background-color: #1a2358; /* Main Stop */
-}
-
-.legend-small-stop {
-  background-color: #5d67a1;
-}
-
-.legend-icon {
-  width: 16px;      /* adjust size as you like */
-  height: 16px;
-  margin-right: 6px;
-  object-fit: contain;
-}
-
-
-/* Route line item */
-
-.legend-line {
-  width: 22px;
-  height: 0;
-  border-top: 4px solid #872d11; /* same as route line */
-  box-shadow: 0 0 4px rgba(243, 194, 165, 0.8); /* hint of glow */
-}
-=======
 /* ── Title ──────────────────────────────────────────────────────────────────── */
 h1 {
   position: absolute;
@@ -492,4 +343,3 @@ h1 {
   color: #333;
   margin: 6px 0;
 }
->>>>>>> b2196e0ac5753c49b28a15cbcd3122e5c6828a33
