@@ -76,7 +76,6 @@ function buildAreaHTML(props) {
 
   const predictedAi = mlData ? mlData.predicted_accessibility : null;
   const residual = mlData ? mlData.residual : null;
-  const sd = np.std(residual)
   const pctDiff = mlData ? mlData.pct_diff : null;
   const accessLabel = mlData ? mlData.access_label : null;
 
@@ -119,7 +118,31 @@ function buildAreaHTML(props) {
     <div class="panel-divider"></div>
 
     <div class="panel-section-label">Accessibility</div>
-    <div class="panel-row"><span class="panel-key">Index</span><span>${isNaN(aiNum) ? "N/A" : aiNum.toLocaleString()}</span></div>
+
+
+    <div class="panel-row">
+      <span class="panel-key">Index</span>
+      <span>${isNaN(aiNum) ? "N/A" : aiNum.toLocaleString()}</span>
+    </div>
+    <div class="panel-row">
+      <span class="panel-key">Predicted Index</span>
+      <span>${predictedAi === null ? "N/A" : Number(predictedAi).toFixed(1)}</span>
+    </div>
+    <div class="panel-row">
+      <span class="panel-key">Residual</span>
+      <span>${residual === null ? "N/A" : Number(residual).toFixed(1)}</span>
+    </div>
+    <div class="panel-row">
+      <span class="panel-key">% Difference</span>
+      <span>${pctDiff === null ? "N/A" : (pctDiff * 100).toFixed(1) + "%"}</span>
+    </div>
+    <div class="panel-row">
+      <span class="panel-key">Model Label</span>
+      <span style="color: ${labelColor}; font-weight: 600;">
+        ${accessLabel === null ? "N/A" : accessLabel}
+      </span>
+    </div>
+
     <div class="panel-row panel-badge-row">${badge}</div>
 
     ${mlData ? `
