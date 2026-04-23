@@ -116,12 +116,12 @@ def run_model():
     # percent difference
     working["pct_diff"] = working["residual"] / working["predicted_accessibility"]
 
-    sd = np.std(working["residual"] / working[TARGET])
-    mean = np.mean(working["residual"] / working[TARGET])
-    def classify_pct_diff(p):  #1sd 
-        if p-mean < -sd:
+    upper = np.percentile(working["residual"] / working[TARGET], 75)
+    lower = np.percentile(working["residual"] / working[TARGET], 25)
+    def classify_pct_diff(p):  #quantile
+        if p < lower:
             return "Below expected access"
-        elif p-mean > sd:
+        elif p > upper:
             return "Above expected access"
         else:
             return "About as expected"
