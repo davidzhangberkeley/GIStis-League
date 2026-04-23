@@ -95,12 +95,7 @@ function buildAreaHTML(props) {
   const pctAsian = props.pct_asian_nh ?? "";
   const pctHispanic = props.pct_hispanic ?? "";
 
-  const isUnderserved = !isNaN(aiNum) && aiNum < UNDERSERVED_THRESHOLD;
-  const badge = !isNaN(aiNum)
-    ? `<span class="badge ${isUnderserved ? "badge-under" : "badge-over"}">
-         ${isUnderserved ? "Underserved" : "Well Served"}
-       </span>`
-    : "";
+
 
   const pct = (v) => v !== "" ? `${(Number(v) * 100).toFixed(1)}%` : "";
   const dollar = (v) => v !== "" ? `$${Number(v).toLocaleString()}` : "";
@@ -143,7 +138,7 @@ function buildAreaHTML(props) {
       </span>
     </div>
 
-    <div class="panel-row panel-badge-row">${badge}</div>
+ 
 
     ${mlData ? `
     <div class="panel-divider"></div>
@@ -207,28 +202,7 @@ const layerConfigs = {
     legendLabels: ["0", "60k", "100k", "180k", "220k+"],
     legendColors: ["#7f0000", "#fdbb84", "#d9f0a3", "#31a354", "#006837"]
   },
-  underserved: {
-    label: "Underserved Classification",
-    field: "Accessibility_Index",
-    type: "categorical",
-    expression: [
-      "case",
-      ["all",
-        ["!=", ["to-string", ["get", "Accessibility_Index"]], "NaN"],
-        ["!=", ["get", "Accessibility_Index"], null],
-        ["<", ["to-number", ["get", "Accessibility_Index"]], UNDERSERVED_THRESHOLD]
-      ], "#e74c3c",
-      ["all",
-        ["!=", ["to-string", ["get", "Accessibility_Index"]], "NaN"],
-        ["!=", ["get", "Accessibility_Index"], null]
-      ], "#27ae60",
-      "rgba(0,0,0,0)"
-    ],
-    legendItems: [
-      { color: "#e74c3c", label: `Underserved (AI < ${UNDERSERVED_THRESHOLD.toLocaleString()})` },
-      { color: "#27ae60", label: "Well Served" }
-    ]
-  },
+
   residual: {
     label: "Residual Gradient",
     field: "residual",
@@ -565,18 +539,13 @@ map.on("load", async () => {
   });
 
   map.addLayer({
-    id: "bay-ai-underserved",
-    type: "line",
-    source: "bay-ai",
-    filter: [
-      "all",
-      ["!=", ["to-string", ["get", "Accessibility_Index"]], "NaN"],
-      ["!=", ["get", "Accessibility_Index"], null],
-      ["<", ["to-number", ["get", "Accessibility_Index"]], UNDERSERVED_THRESHOLD]
-    ],
-    paint: { "line-color": "#e74c3c", "line-width": 3, "line-opacity": 0.9 },
-    layout: { visibility: "none" }
-  });
+  id: "bay-ai-underserved",
+  type: "line",
+  source: "bay-ai",
+  filter: ["==", ["get", "access_label"], "Below expected access"],
+  paint: { "line-color": "#e74c3c", "line-width": 3, "line-opacity": 0.9 },
+  layout: { visibility: "none" }
+});
 
   let hoveredAreaId = null;
 
@@ -657,7 +626,12 @@ map.on("load", async () => {
   });
 
   const underservedToggle = document.getElementById("underservedToggle");
+  
   underservedToggle.addEventListener("click", () => {
+    if (Object.keys(mlPredictions).length === 0) {
+    alert("Please run the model first to classify tracts.");
+    return;
+  }
     const visible = map.getLayoutProperty("bay-ai-underserved", "visibility") !== "none";
     const next = visible ? "none" : "visible";
     map.setLayoutProperty("bay-ai-underserved", "visibility", next);

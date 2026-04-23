@@ -116,16 +116,17 @@ def run_model():
     # percent difference
     working["pct_diff"] = working["residual"] / working["predicted_accessibility"]
 
-    sd = np.std(working["residual"])
+    sd = np.std(working["residual"] / working[TARGET])
+    mean = np.mean(working["residual"] / working[TARGET])
     def classify_pct_diff(p):  #1sd 
-        if p < -sd:
+        if p-mean < -sd:
             return "Below expected access"
-        elif p > sd:
+        elif p-mean > sd:
             return "Above expected access"
         else:
             return "About as expected"
 
-    working["access_label"] = working["residual"].apply(classify_pct_diff)
+    working["access_label"] = (working["residual"] / working[TARGET]).apply(classify_pct_diff)
 
     tract_results = working[["GEOID", "predicted_accessibility", "residual", "pct_diff", "access_label"]].to_dict(orient="records")
 
